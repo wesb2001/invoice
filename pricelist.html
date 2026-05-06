@@ -307,7 +307,14 @@ function toggleAddC(){addingC=!addingC;renderContent();}
 function addC(){
   const name=($('nc_n')?.value||'').trim();
   if(!name){alert('거래처명을 입력하세요.');return;}
-  const c={id:uid(),name,bizNo:$('nc_b')?.value.trim()||'',contact:$('nc_c')?.value.trim()||'',address:$('nc_a')?.value.trim()||'',products:[]};
+  const c={id:uid(),name,
+    ceo:$('nc_ceo')?.value.trim()||'',
+    bizNo:$('nc_b')?.value.trim()||'',
+    bizType:$('nc_bt')?.value.trim()||'',
+    bizItem:$('nc_bi')?.value.trim()||'',
+    contact:$('nc_c')?.value.trim()||'',
+    address:$('nc_a')?.value.trim()||'',
+    products:[]};
   D.customers.push(c);markDirty();addingC=false;renderList();sel(c.id);toast('거래처 추가됨','ok');
 }
 
@@ -322,7 +329,10 @@ function delC(id){
 function saveC(){
   const c=D.customers.find(x=>x.id===selId);if(!c)return;
   c.name=$('ec_n')?.value.trim()||c.name;
+  c.ceo=$('ec_ceo')?.value.trim()||'';
   c.bizNo=$('ec_b')?.value.trim()||'';
+  c.bizType=$('ec_bt')?.value.trim()||'';
+  c.bizItem=$('ec_bi')?.value.trim()||'';
   c.contact=$('ec_c')?.value.trim()||'';
   c.address=$('ec_a')?.value.trim()||'';
   editingC=false;markDirty();renderList();renderContent();toast('저장됨','ok');
@@ -342,7 +352,13 @@ function renderContent(){
     ${addingC?addCForm():''}
     <div class="chd">
       <div><h2>${esc(c.name)}</h2>
-        <div class="ci2">${[c.bizNo,c.contact?'담당: '+esc(c.contact):'',c.address].filter(Boolean).join(' · ')||'추가 정보 없음'}</div>
+        <div class="ci2">${[
+          c.ceo?'대표: '+esc(c.ceo):'',
+          c.bizNo?'사업자: '+esc(c.bizNo):'',
+          (c.bizType||c.bizItem)?(esc(c.bizType||'')+' / '+esc(c.bizItem||'')).replace(/^ \/ | \/ $/g,''):'',
+          c.contact?'담당: '+esc(c.contact):'',
+          c.address?esc(c.address):''
+        ].filter(Boolean).join(' · ')||'추가 정보 없음'}</div>
       </div>
       <div class="c-acts">
         <button class="btn-so" onclick="editingC=!editingC;renderContent()">✏ 정보 수정</button>
@@ -368,13 +384,19 @@ function renderContent(){
 }
 
 function addCForm(){
+  const inp=(id,ph,flex='1',minW='100px')=>`<div style="flex:${flex};min-width:${minW};"><label style="font-size:10px;color:#888;display:block;margin-bottom:3px;">${ph}</label><input type="text" id="${id}" placeholder="${ph}" style="width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:12px;"></div>`;
   return`<div class="add-c-bar">
     <div style="font-size:11px;font-weight:600;color:var(--navy);margin-bottom:8px;">새 거래처 추가</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end;margin-bottom:7px;">
+      <div style="flex:2;min-width:160px;"><label style="font-size:10px;color:#888;display:block;margin-bottom:3px;">거래처명 *</label><input type="text" id="nc_n" placeholder="상호명" style="width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:12px;" onkeydown="if(event.key==='Enter')addC()"></div>
+      ${inp('nc_ceo','대표자')}
+      ${inp('nc_b','사업자번호','1','120px')}
+      ${inp('nc_c','담당자')}
+    </div>
     <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end;">
-      <div style="flex:1;min-width:120px;"><label style="font-size:10px;color:#888;display:block;margin-bottom:3px;">거래처명 *</label><input type="text" id="nc_n" placeholder="상호명" style="width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:12px;" onkeydown="if(event.key==='Enter')addC()"></div>
-      <div style="flex:1;min-width:120px;"><label style="font-size:10px;color:#888;display:block;margin-bottom:3px;">사업자번호</label><input type="text" id="nc_b" placeholder="000-00-00000" style="width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:12px;"></div>
-      <div style="flex:1;min-width:100px;"><label style="font-size:10px;color:#888;display:block;margin-bottom:3px;">담당자</label><input type="text" id="nc_c" placeholder="담당자명" style="width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:12px;"></div>
-      <div style="flex:2;min-width:180px;"><label style="font-size:10px;color:#888;display:block;margin-bottom:3px;">주소</label><input type="text" id="nc_a" placeholder="주소" style="width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:12px;"></div>
+      ${inp('nc_bt','업태')}
+      ${inp('nc_bi','종목')}
+      <div style="flex:3;min-width:200px;"><label style="font-size:10px;color:#888;display:block;margin-bottom:3px;">주소</label><input type="text" id="nc_a" placeholder="주소" style="width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:12px;"></div>
       <div style="display:flex;gap:5px;padding-top:2px;">
         <button class="btn-xs" onclick="addC()">추가</button>
         <button class="btn-xc" onclick="addingC=false;renderContent()">취소</button>
@@ -384,16 +406,23 @@ function addCForm(){
 }
 
 function editCBar(c){
-  return`<div class="edit-bar"><div class="row">
-    <div class="ef"><label>거래처명</label><input type="text" id="ec_n" value="${esc(c.name)}"></div>
-    <div class="ef"><label>사업자번호</label><input type="text" id="ec_b" value="${esc(c.bizNo||'')}"></div>
-    <div class="ef"><label>담당자</label><input type="text" id="ec_c" value="${esc(c.contact||'')}"></div>
-    <div class="ef" style="flex:2"><label>주소</label><input type="text" id="ec_a" value="${esc(c.address||'')}"></div>
-    <div class="eb-btns">
-      <button class="btn-xs" onclick="saveC()">저장</button>
-      <button class="btn-xc" onclick="editingC=false;renderContent()">취소</button>
+  return`<div class="edit-bar">
+    <div class="row" style="margin-bottom:7px;">
+      <div class="ef" style="flex:2"><label>거래처명</label><input type="text" id="ec_n" value="${esc(c.name)}"></div>
+      <div class="ef"><label>대표자</label><input type="text" id="ec_ceo" value="${esc(c.ceo||'')}"></div>
+      <div class="ef"><label>사업자번호</label><input type="text" id="ec_b" value="${esc(c.bizNo||'')}"></div>
+      <div class="ef"><label>담당자</label><input type="text" id="ec_c" value="${esc(c.contact||'')}"></div>
     </div>
-  </div></div>`;
+    <div class="row">
+      <div class="ef"><label>업태</label><input type="text" id="ec_bt" value="${esc(c.bizType||'')}"></div>
+      <div class="ef"><label>종목</label><input type="text" id="ec_bi" value="${esc(c.bizItem||'')}"></div>
+      <div class="ef" style="flex:3"><label>주소</label><input type="text" id="ec_a" value="${esc(c.address||'')}"></div>
+      <div class="eb-btns">
+        <button class="btn-xs" onclick="saveC()">저장</button>
+        <button class="btn-xc" onclick="editingC=false;renderContent()">취소</button>
+      </div>
+    </div>
+  </div>`;
 }
 
 /* ── PRODUCTS ── */

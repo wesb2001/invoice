@@ -42,9 +42,9 @@ header h1{color:#fff;font-size:17px;font-weight:600;}
 .pl-loading{font-size:12px;color:var(--muted);padding:4px 0;}
 
 /* ITEMS */
-.items-head{display:grid;grid-template-columns:20px 1fr 62px 65px 90px 90px 22px;gap:3px;padding:0 0 6px;border-bottom:1px solid var(--border);margin-bottom:5px;}
+.items-head{display:grid;grid-template-columns:16px 1fr 50px 50px 72px 72px 18px;gap:3px;padding:0 0 6px;border-bottom:1px solid var(--border);margin-bottom:5px;}
 .items-head span{font-size:10px;font-weight:600;color:var(--muted);}
-.item-row{display:grid;grid-template-columns:20px 1fr 62px 65px 90px 90px 22px;gap:3px;align-items:center;margin-bottom:4px;}
+.item-row{display:grid;grid-template-columns:16px 1fr 50px 50px 72px 72px 18px;gap:3px;align-items:center;margin-bottom:4px;}
 .item-row .rn{font-size:10px;color:var(--muted);text-align:center;}
 .item-row input{padding:5px 7px;border:1px solid var(--border);border-radius:3px;font-family:'Noto Sans KR',sans-serif;font-size:12px;width:100%;}
 .item-row input:focus{outline:none;border-color:var(--navy);}
@@ -303,10 +303,13 @@ function onCustSel(){
   if(!cid||!plData)return;
   const c=plData.customers.find(x=>x.id===cid);
   if(!c)return;
-  if(c.name)$('rcvName').value=c.name;
-  if(c.bizNo)$('rcvBizNo').value=c.bizNo;
-  if(c.contact)$('rcvContact').value=c.contact;
+  if(c.name)   $('rcvName').value=c.name;
+  if(c.ceo)    $('rcvCeo').value=c.ceo;
+  if(c.bizNo)  $('rcvBizNo').value=c.bizNo;
   if(c.address)$('rcvAddr').value=c.address;
+  if(c.bizType)$('rcvType').value=c.bizType;
+  if(c.bizItem)$('rcvItem').value=c.bizItem;
+  if(c.contact)$('rcvContact').value=c.contact;
   upd();
 }
 
