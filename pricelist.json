@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-06",
+  "updatedAt": "2026-05-06T03:26:54.936Z",
   "customers": [
     {
       "id": "x0001",
@@ -1534,6 +1534,39 @@
       "address": "",
       "note": "약국/오프라인",
       "products": []
+    },
+    {
+      "id": "mothpa0zpe5do",
+      "name": "남대문약국",
+      "bizNo": "811-38-00266",
+      "contact": "안제홍총괄약사",
+      "address": "서울특별시 중구 남대문로 20, 1층(남대문로3가)",
+      "products": [
+        {
+          "id": "moths14dpkq6x",
+          "name": "릴릴 나인세컨드 선크림",
+          "spec": "50ml",
+          "unit": "ea",
+          "price": 8800,
+          "note": ""
+        },
+        {
+          "id": "mothsoo3f8ioo",
+          "name": "릴릴 그린애플 노세범 선스틱",
+          "spec": "50ml",
+          "unit": "ea",
+          "price": 8800,
+          "note": ""
+        },
+        {
+          "id": "mothud1zttxd5",
+          "name": "릴릴 코랄센텔라 선쿠션",
+          "spec": "25g",
+          "unit": "ea",
+          "price": 9900,
+          "note": ""
+        }
+      ]
     }
   ]
 }
