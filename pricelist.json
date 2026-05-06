@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-06T04:48:26.689Z",
+  "updatedAt": "2026-05-06T05:20:40.437Z",
   "customers": [
     {
       "id": "x0001",
@@ -1556,6 +1556,14 @@
           "spec": "25g",
           "unit": "ea",
           "price": 8800,
+          "note": ""
+        },
+        {
+          "id": "motlzj1tf8vyq",
+          "name": "릴릴 코랄센텐라 선쿠션",
+          "spec": "25g",
+          "unit": "ea",
+          "price": 9900,
           "note": ""
         }
       ]
