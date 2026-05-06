@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>거래선 가격표 | 리와인드랩</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#1a2f5a;--navy2:#243870;--accent:#c8a96e;--bg:#f4f4f0;--white:#fff;--border:#d8d8d4;--text:#1e1e1e;--muted:#888;--surface:#f9f9f7;--green:#1d7a4f;--red:#c0392b;--orange:#d97706;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+header{background:var(--navy);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:50px;flex-shrink:0;}
+header h1{color:#fff;font-size:15px;font-weight:600;}
+.hbadge{color:var(--accent);font-size:11px;margin-left:7px;font-weight:400;}
+.hbtns{display:flex;gap:6px;align-items:center;}
+.hbtn{padding:5px 12px;border-radius:5px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .15s;}
+.hbtn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.3);color:#fff;}
+.hbtn-ghost:hover{background:rgba(255,255,255,0.1);}
+.hbtn-save{background:#2d7a4f;color:#fff;}
+.hbtn-save:hover{background:#1f5c39;}
+.hbtn-save:disabled{background:#aaa;cursor:not-allowed;}
+.hbtn-link{background:rgba(255,255,255,0.1);color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500;}
+.hbtn-link:hover{background:rgba(255,255,255,0.2);}
+.status-bar{display:flex;align-items:center;gap:10px;padding:7px 20px;background:#f0f2f9;border-bottom:1px solid #d0d5e8;font-size:12px;flex-shrink:0;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-g{background:var(--green);} .dot-r{background:var(--red);} .dot-o{background:var(--orange);} .dot-x{background:#bbb;}
+.dirty-badge{margin-left:auto;color:var(--orange);font-weight:600;font-size:11px;}
+.settings-panel{background:#fff;border-bottom:1px solid var(--border);padding:16px 20px;flex-shrink:0;}
+.settings-title{font-size:11px;font-weight:700;color:var(--navy);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
+.sg{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:flex-end;margin-bottom:12px;}
+.sf label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:500;}
+.sf input{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:5px;font-family:'Noto Sans KR',sans-serif;font-size:13px;}
+.sf input:focus{outline:none;border-color:var(--navy);}
+.sf input[type=password]{letter-spacing:2px;}
+.btn-cfg{padding:8px 16px;background:var(--navy);color:#fff;border:none;border-radius:5px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;}
+.btn-cfg:hover{background:var(--navy2);}
+.guide{background:#fdf8ee;border:1px solid #e8d9b0;border-radius:6px;padding:11px 14px;font-size:12px;line-height:2;color:#555;}
+.guide strong{color:var(--navy);}
+.guide code{background:#ede4cc;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px;}
+.onboarding{flex:1;display:flex;align-items:center;justify-content:center;padding:40px;}
+.ob-box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:32px 36px;max-width:500px;width:100%;text-align:center;}
+.ob-icon{font-size:48px;margin-bottom:14px;}
+.ob-box h2{font-size:18px;font-weight:600;color:var(--navy);margin-bottom:10px;}
+.ob-box p{font-size:13px;color:var(--muted);line-height:1.9;margin-bottom:20px;}
+.btn-setup{padding:10px 28px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+.main{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:256px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+.sidebar-search{padding:11px;}
+.sidebar-search input{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:'Noto Sans KR',sans-serif;font-size:12px;}
+.sidebar-search input:focus{outline:none;border-color:var(--navy);}
+.cust-list{flex:1;overflow-y:auto;}
+.ci{padding:10px 11px;border-bottom:1px solid #f0f0ec;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .12s;}
+.ci:hover{background:#f5f5f2;}
+.ci.active{background:#eef1fa;border-left:3px solid var(--navy);padding-left:8px;}
+.ci .cn{font-size:13px;font-weight:500;}
+.ci.active .cn{color:var(--navy);}
+.ci .cc{font-size:11px;color:var(--muted);margin-top:1px;}
+.btn-dc{background:none;border:none;cursor:pointer;color:#ddd;font-size:13px;padding:2px 5px;flex-shrink:0;transition:color .15s;}
+.btn-dc:hover{color:var(--red);}
+.sidebar-foot{padding:10px 11px;border-top:1px solid var(--border);}
+.btn-addcust{width:100%;padding:9px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;}
+.btn-addcust:hover{background:var(--navy2);}
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.chd{padding:13px 20px;border-bottom:1px solid var(--border);background:var(--white);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;}
+.chd h2{font-size:16px;font-weight:600;}
+.chd .ci2{font-size:11px;color:var(--muted);margin-top:3px;}
+.c-acts{display:flex;gap:6px;flex-shrink:0;}
+.btn-so{background:#fff;color:var(--navy);border:1.5px solid var(--navy);padding:6px 12px;border-radius:5px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;}
+.btn-so:hover{background:var(--navy);color:#fff;}
+.btn-sp{background:var(--navy);color:#fff;border:none;padding:6px 13px;border-radius:5px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;}
+.btn-sp:hover{background:var(--navy2);}
+.edit-bar{padding:10px 20px;background:#eef1fa;border-bottom:1px solid #c8d0e8;flex-shrink:0;}
+.edit-bar .row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;}
+.ef{flex:1;min-width:120px;}
+.ef label{display:block;font-size:10px;color:var(--muted);margin-bottom:3px;font-weight:500;}
+.ef input{width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:12px;}
+.ef input:focus{outline:none;border-color:var(--navy);}
+.eb-btns{display:flex;gap:5px;}
+.btn-xs{background:var(--navy);color:#fff;border:none;padding:6px 11px;border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:11px;cursor:pointer;}
+.btn-xc{background:#eee;color:#555;border:none;padding:6px 9px;border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:11px;cursor:pointer;}
+.add-c-bar{padding:10px 20px;background:#f0f4ff;border-bottom:1px solid #c8d0e8;flex-shrink:0;}
+.tbl-wrap{flex:1;overflow-y:auto;padding:16px 20px;}
+.ptbl{width:100%;border-collapse:collapse;font-size:13px;}
+.ptbl th{background:var(--navy);color:#fff;padding:8px 9px;text-align:left;font-weight:500;font-size:11px;white-space:nowrap;}
+.ptbl th.r{text-align:right;}
+.ptbl th.c{text-align:center;}
+.ptbl td{padding:9px 9px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.ptbl td.r{text-align:right;}
+.ptbl td.c{text-align:center;}
+.ptbl tr:hover td{background:#fafaf8;}
+.ptbl tr.er td{background:#f0f4ff!important;padding:3px 5px;}
+.ptbl tr.er input{padding:5px 7px;border:1px solid var(--border);border-radius:3px;font-family:'Noto Sans KR',sans-serif;font-size:12px;width:100%;}
+.ptbl tr.er input:focus{outline:none;border-color:var(--navy);}
+.bu{display:inline-block;background:#eef1f9;color:var(--navy);padding:1px 7px;border-radius:3px;font-size:11px;font-weight:500;}
+.bic{background:none;border:none;cursor:pointer;padding:3px 6px;border-radius:3px;font-size:13px;transition:background .12s;}
+.bic:hover{background:#eee;}
+.empty2{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);padding:40px;text-align:center;}
+.empty2 .eic{font-size:40px;margin-bottom:12px;}
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 18px;border-radius:6px;font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;color:#fff;}
+.toast.show{opacity:1;}
+.tok{background:#1d7a4f;}
+.ter{background:#c0392b;}
+</style>
+</head>
+<body>
+
+<!-- PasswordGate -->
+<div id="pwScreen" style="position:fixed;inset:0;background:#1a2f5a;display:flex;align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:#fff;border-radius:14px;padding:40px 44px;width:340px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.3);">
+    <div style="font-size:36px;margin-bottom:12px;">🔐</div>
+    <div style="font-size:18px;font-weight:600;color:#1a2f5a;margin-bottom:4px;">리와인드랩</div>
+    <div style="font-size:12px;color:#888;margin-bottom:28px;">거래선 가격표 관리</div>
+    <input type="password" id="pwInput" placeholder="비밀번호를 입력하세요"
+      style="width:100%;padding:11px 14px;border:1.5px solid #d8d8d4;border-radius:7px;font-family:'Noto Sans KR',sans-serif;font-size:14px;margin-bottom:10px;outline:none;"
+      onkeydown="if(event.key==='Enter')tryLogin()"
+      onfocus="this.style.borderColor='#1a2f5a'" onblur="this.style.borderColor='#d8d8d4'">
+    <div id="pwErr" style="display:none;color:#c0392b;font-size:12px;margin-bottom:8px;">비밀번호가 올바르지 않습니다.</div>
+    <button onclick="tryLogin()"
+      style="width:100%;padding:11px;background:#1a2f5a;color:#fff;border:none;border-radius:7px;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">
+      로그인
+    </button>
+    <div style="margin-top:20px;font-size:11px;color:#bbb;">주식회사 리와인드랩 내부용</div>
+  </div>
+</div>
+
+<header>
+  <h1>📋 거래선 가격표<span class="hbadge">| 주식회사 리와인드랩</span></h1>
+  <div class="hbtns">
+    <a href="index.html" class="hbtn-link">← 거래명세서</a>
+    <button class="hbtn hbtn-ghost" onclick="toggleCfg()">⚙ GitHub 설정</button>
+    <button class="hbtn hbtn-ghost" onclick="loadData()" id="btnRef">🔄 새로고침</button>
+    <button class="hbtn hbtn-save" onclick="saveToGitHub()" id="btnSave">💾 GitHub에 저장</button>
+  </div>
+</header>
+
+<div class="status-bar">
+  <div class="dot dot-x" id="sdot"></div>
+  <div id="stxt" style="color:var(--muted);">초기화 중...</div>
+  <div class="dirty-badge" id="dirty" style="display:none;">● 저장되지 않은 변경사항 있음</div>
+</div>
+
+<div id="cfgPanel" style="display:none;">
+  <div class="settings-panel">
+    <div class="settings-title">🔗 GitHub 클라우드 연결 설정</div>
+    <div class="sg">
+      <div class="sf"><label>GitHub Personal Access Token (편집 권한용)</label><input type="password" id="cfgTok" placeholder="github_pat_xxxx..." autocomplete="off"></div>
+      <div class="sf"><label>저장소 (Owner/Repo)</label><input type="text" id="cfgRepo" placeholder="wesb2001/invoice"></div>
+      <div><button class="btn-cfg" onclick="saveCfg()">설정 저장 후 연결</button></div>
+    </div>
+    <div class="guide">
+      <strong>토큰 발급 (1회만):</strong>
+      GitHub.com → 프로필 클릭 → <strong>Settings</strong> → 스크롤 맨 아래 <strong>Developer settings</strong>
+      → <strong>Personal access tokens → Fine-grained tokens → Generate new token</strong><br>
+      Repository access: <code>wesb2001/invoice</code> 선택 →
+      Permissions → Contents: <code>Read and Write</code> 선택 → 토큰 복사 → 위에 붙여넣기<br>
+      <strong>※ 읽기 전용 사용자</strong>는 토큰 없이도 거래명세서에서 가격표 조회 가능
+    </div>
+  </div>
+</div>
+
+<div id="obView" style="display:none;">
+  <div class="onboarding">
+    <div class="ob-box">
+      <div class="ob-icon">☁️</div>
+      <h2>GitHub 클라우드 연결 필요</h2>
+      <p>가격표 데이터를 GitHub에 저장하면<br>누구나 어디서든 같은 데이터를 실시간으로 볼 수 있습니다.<br><br>
+      <strong>편집 권한자:</strong> Personal Access Token 설정 필요<br>
+      <strong>조회 전용:</strong> 거래명세서 페이지에서 자동으로 최신 가격표 불러옴</p>
+      <button class="btn-setup" onclick="$('cfgPanel').style.display='block';$('cfgTok').focus()">⚙ 지금 설정하기</button>
+    </div>
+  </div>
+</div>
+
+<div id="appView" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+  <div class="main">
+    <div class="sidebar">
+      <div class="sidebar-search"><input type="text" id="srch" placeholder="🔍 거래처 검색..." oninput="renderList()"></div>
+      <div class="cust-list" id="custList"></div>
+      <div class="sidebar-foot"><button class="btn-addcust" onclick="toggleAddC()">+ 거래처 추가</button></div>
+    </div>
+    <div class="content" id="contentPanel">
+      <div class="empty2"><div class="eic">📋</div><p>거래처를 선택하거나 추가하세요</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CFG_KEY='rl_gh_cfg2';
+let D={customers:[]};
+let selId=null,editPid=null,addingP=false,addingC=false,editingC=false,isDirty=false;
+const $=id=>document.getElementById(id);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function getCfg(){try{return JSON.parse(localStorage.getItem(CFG_KEY))||{};}catch(e){return{};}}
+function hasCfg(){const c=getCfg();return !!(c.token&&c.repo);}
+
+function saveCfg(){
+  const token=$('cfgTok').value.trim();
+  const repo=$('cfgRepo').value.trim()||'wesb2001/invoice';
+  if(!token){alert('토큰을 입력하세요.');return;}
+  localStorage.setItem(CFG_KEY,JSON.stringify({token,repo,branch:'main',file:'pricelist.json'}));
+  $('cfgPanel').style.display='none';
+  toast('설정 저장됨','ok');
+  init();
+}
+
+function toggleCfg(){
+  const p=$('cfgPanel');
+  const open=p.style.display!=='none';
+  p.style.display=open?'none':'block';
+  if(!open){const c=getCfg();$('cfgTok').value=c.token||'';$('cfgRepo').value=c.repo||'wesb2001/invoice';}
+}
+
+function rawUrl(){const c=getCfg();return `https://raw.githubusercontent.com/${c.repo||'wesb2001/invoice'}/main/${c.file||'pricelist.json'}`;}
+function apiUrl(){const c=getCfg();return `https://api.github.com/repos/${c.repo}/contents/${c.file||'pricelist.json'}`;}
+
+function setSt(type,html){
+  const d=$('sdot');d.className='dot';
+  d.classList.add(type==='ok'?'dot-g':type==='err'?'dot-r':type==='load'?'dot-o':'dot-x');
+  $('stxt').innerHTML=html;
+}
+function setDirty(v){isDirty=v;$('dirty').style.display=v?'block':'none';}
+function toast(msg,type){
+  const t=$('toast');t.textContent=msg;t.className='toast '+(type==='ok'?'tok':'ter')+' show';
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+function markDirty(){setDirty(true);}
+
+async function loadData(){
+  setSt('load','GitHub에서 불러오는 중...');
+  $('btnRef').disabled=true;
+  try{
+    const r=await fetch(rawUrl()+'?t='+Date.now());
+    if(r.status===404){D={customers:[]};setSt('ok','연결됨 · 데이터 없음 (첫 저장 시 자동 생성)');}
+    else if(!r.ok){throw new Error('HTTP '+r.status);}
+    else{
+      D=await r.json();
+      if(!Array.isArray(D.customers))D.customers=[];
+      const c=getCfg();
+      const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+      setSt('ok',`<strong>${c.repo}</strong> 연결됨 &nbsp;·&nbsp; ${t} 기준 &nbsp;·&nbsp; 거래처 <strong>${D.customers.length}</strong>개`);
+    }
+    setDirty(false);renderList();renderContent();
+  }catch(e){setSt('err','불러오기 실패: '+e.message);toast('불러오기 실패: '+e.message,'err');}
+  finally{$('btnRef').disabled=false;}
+}
+
+async function saveToGitHub(){
+  if(!hasCfg()){alert('먼저 GitHub 설정을 완료하세요.');toggleCfg();return;}
+  const btn=$('btnSave');btn.disabled=true;btn.textContent='저장 중...';
+  try{
+    const cfg=getCfg();
+    const hdrs={'Authorization':'Bearer '+cfg.token,'Content-Type':'application/json','Accept':'application/vnd.github+json'};
+    let sha=null;
+    const meta=await fetch(apiUrl(),{headers:hdrs});
+    if(meta.ok){const m=await meta.json();sha=m.sha;}
+    D.updatedAt=new Date().toISOString();
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(D,null,2))));
+    const body={message:`가격표 업데이트 [${new Date().toLocaleString('ko-KR')}]`,content};
+    if(sha)body.sha=sha;
+    const resp=await fetch(apiUrl(),{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
+    if(!resp.ok){const e=await resp.json();throw new Error(e.message||'API 오류');}
+    setDirty(false);
+    const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    setSt('ok',`저장 완료 &nbsp;·&nbsp; ${t}`);
+    toast('GitHub에 저장됨 ✓','ok');
+  }catch(e){toast('저장 실패: '+e.message,'err');setSt('err','저장 실패: '+e.message);}
+  finally{btn.disabled=false;btn.textContent='💾 GitHub에 저장';}
+}
+
+/* ── CUSTOMER ── */
+function renderList(){
+  const q=($('srch')||{}).value?.toLowerCase()||'';
+  const fl=D.customers.filter(c=>c.name.toLowerCase().includes(q));
+  const el=$('custList');if(!el)return;
+  el.innerHTML=fl.length
+    ?fl.map(c=>`<div class="ci ${c.id===selId?'active':''}" onclick="sel('${c.id}')">
+        <div><div class="cn">${esc(c.name)}</div><div class="cc">품목 ${c.products.length}개${c.contact?' · '+esc(c.contact):''}</div></div>
+        <button class="btn-dc" onclick="event.stopPropagation();delC('${c.id}')">✕</button>
+      </div>`).join('')
+    :'<div style="padding:18px;text-align:center;font-size:12px;color:#bbb;">거래처 없음</div>';
+}
+
+function sel(id){selId=id;editPid=null;addingP=false;editingC=false;renderList();renderContent();}
+function toggleAddC(){addingC=!addingC;renderContent();}
+
+function addC(){
+  const name=($('nc_n')?.value||'').trim();
+  if(!name){alert('거래처명을 입력하세요.');return;}
+  const c={id:uid(),name,bizNo:$('nc_b')?.value.trim()||'',contact:$('nc_c')?.value.trim()||'',address:$('nc_a')?.value.trim()||'',products:[]};
+  D.customers.push(c);markDirty();addingC=false;renderList();sel(c.id);toast('거래처 추가됨','ok');
+}
+
+function delC(id){
+  const c=D.customers.find(x=>x.id===id);
+  if(!confirm(`"${c?.name}" 거래처를 삭제하시겠습니까?`))return;
+  D.customers=D.customers.filter(x=>x.id!==id);
+  if(selId===id)selId=null;
+  markDirty();renderList();renderContent();toast('삭제됨','ok');
+}
+
+function saveC(){
+  const c=D.customers.find(x=>x.id===selId);if(!c)return;
+  c.name=$('ec_n')?.value.trim()||c.name;
+  c.bizNo=$('ec_b')?.value.trim()||'';
+  c.contact=$('ec_c')?.value.trim()||'';
+  c.address=$('ec_a')?.value.trim()||'';
+  editingC=false;markDirty();renderList();renderContent();toast('저장됨','ok');
+}
+
+/* ── RENDER CONTENT ── */
+function renderContent(){
+  const p=$('contentPanel');if(!p)return;
+  if(!selId&&!addingC){
+    p.innerHTML='<div class="empty2"><div class="eic">📋</div><p>거래처를 선택하거나 추가하세요</p></div>';
+    return;
+  }
+  if(!selId){p.innerHTML=addCForm();setTimeout(()=>$('nc_n')?.focus(),50);return;}
+  const c=D.customers.find(x=>x.id===selId);
+  if(!c){selId=null;renderContent();return;}
+  p.innerHTML=`
+    ${addingC?addCForm():''}
+    <div class="chd">
+      <div><h2>${esc(c.name)}</h2>
+        <div class="ci2">${[c.bizNo,c.contact?'담당: '+esc(c.contact):'',c.address].filter(Boolean).join(' · ')||'추가 정보 없음'}</div>
+      </div>
+      <div class="c-acts">
+        <button class="btn-so" onclick="editingC=!editingC;renderContent()">✏ 정보 수정</button>
+        <button class="btn-sp" onclick="startAdd()">+ 품목 추가</button>
+      </div>
+    </div>
+    ${editingC?editCBar(c):''}
+    <div class="tbl-wrap">
+      <table class="ptbl">
+        <thead><tr>
+          <th class="c" style="width:34px">No.</th>
+          <th>품명</th>
+          <th style="width:80px">규격</th>
+          <th class="c" style="width:68px">단위</th>
+          <th class="r" style="width:115px">단가 (원)</th>
+          <th style="width:130px">비고</th>
+          <th class="c" style="width:86px">관리</th>
+        </tr></thead>
+        <tbody id="prodBody"></tbody>
+      </table>
+    </div>`;
+  renderProds();
+}
+
+function addCForm(){
+  return`<div class="add-c-bar">
+    <div style="font-size:11px;font-weight:600;color:var(--navy);margin-bottom:8px;">새 거래처 추가</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end;">
+      <div style="flex:1;min-width:120px;"><label style="font-size:10px;color:#888;display:block;margin-bottom:3px;">거래처명 *</label><input type="text" id="nc_n" placeholder="상호명" style="width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:12px;" onkeydown="if(event.key==='Enter')addC()"></div>
+      <div style="flex:1;min-width:120px;"><label style="font-size:10px;color:#888;display:block;margin-bottom:3px;">사업자번호</label><input type="text" id="nc_b" placeholder="000-00-00000" style="width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:12px;"></div>
+      <div style="flex:1;min-width:100px;"><label style="font-size:10px;color:#888;display:block;margin-bottom:3px;">담당자</label><input type="text" id="nc_c" placeholder="담당자명" style="width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:12px;"></div>
+      <div style="flex:2;min-width:180px;"><label style="font-size:10px;color:#888;display:block;margin-bottom:3px;">주소</label><input type="text" id="nc_a" placeholder="주소" style="width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:12px;"></div>
+      <div style="display:flex;gap:5px;padding-top:2px;">
+        <button class="btn-xs" onclick="addC()">추가</button>
+        <button class="btn-xc" onclick="addingC=false;renderContent()">취소</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function editCBar(c){
+  return`<div class="edit-bar"><div class="row">
+    <div class="ef"><label>거래처명</label><input type="text" id="ec_n" value="${esc(c.name)}"></div>
+    <div class="ef"><label>사업자번호</label><input type="text" id="ec_b" value="${esc(c.bizNo||'')}"></div>
+    <div class="ef"><label>담당자</label><input type="text" id="ec_c" value="${esc(c.contact||'')}"></div>
+    <div class="ef" style="flex:2"><label>주소</label><input type="text" id="ec_a" value="${esc(c.address||'')}"></div>
+    <div class="eb-btns">
+      <button class="btn-xs" onclick="saveC()">저장</button>
+      <button class="btn-xc" onclick="editingC=false;renderContent()">취소</button>
+    </div>
+  </div></div>`;
+}
+
+/* ── PRODUCTS ── */
+function renderProds(){
+  const c=D.customers.find(x=>x.id===selId);
+  const tb=$('prodBody');if(!c||!tb)return;
+  let h='';
+  c.products.forEach((p,i)=>{
+    if(p.id===editPid){
+      h+=`<tr class="er">
+        <td class="c" style="color:#aaa;font-size:11px;">${i+1}</td>
+        <td><input type="text" id="ep_n" value="${esc(p.name)}" onkeydown="if(event.key==='Enter')saveProd('${p.id}')"></td>
+        <td><input type="text" id="ep_s" value="${esc(p.spec||'')}"></td>
+        <td><input type="text" id="ep_u" value="${esc(p.unit||'ea')}" style="text-align:center;"></td>
+        <td><input type="number" id="ep_p" value="${p.price||0}" style="text-align:right;" onkeydown="if(event.key==='Enter')saveProd('${p.id}')"></td>
+        <td><input type="text" id="ep_no" value="${esc(p.note||'')}"></td>
+        <td class="c" style="white-space:nowrap;padding:3px 5px;">
+          <button class="btn-xs" style="font-size:11px;padding:5px 9px;" onclick="saveProd('${p.id}')">저장</button>
+          <button class="btn-xc" style="font-size:11px;padding:5px 7px;" onclick="cancelEdit()">취소</button>
+        </td></tr>`;
+    } else {
+      h+=`<tr>
+        <td class="c" style="color:#aaa;font-size:11px;">${i+1}</td>
+        <td style="font-weight:500;">${esc(p.name)}</td>
+        <td style="color:#666;font-size:12px;">${esc(p.spec||'')}</td>
+        <td class="c"><span class="bu">${esc(p.unit||'ea')}</span></td>
+        <td class="r" style="font-weight:500;">${(p.price||0).toLocaleString('ko-KR')}</td>
+        <td style="color:#888;font-size:12px;">${esc(p.note||'')}</td>
+        <td class="c" style="white-space:nowrap;">
+          <button class="bic" onclick="startEdit('${p.id}')" style="color:#555;">✏</button>
+          <button class="bic" onclick="delP('${p.id}')" style="color:var(--red);">✕</button>
+        </td></tr>`;
+    }
+  });
+  if(addingP){
+    h+=`<tr class="er">
+      <td class="c" style="color:#aaa;font-size:11px;">New</td>
+      <td><input type="text" id="np_n" placeholder="품명 *" onkeydown="if(event.key==='Enter')saveNew()"></td>
+      <td><input type="text" id="np_s" placeholder="50ml"></td>
+      <td><input type="text" id="np_u" value="ea" style="text-align:center;"></td>
+      <td><input type="number" id="np_p" placeholder="0" style="text-align:right;" onkeydown="if(event.key==='Enter')saveNew()"></td>
+      <td><input type="text" id="np_no" placeholder="비고"></td>
+      <td class="c" style="white-space:nowrap;padding:3px 5px;">
+        <button class="btn-xs" style="font-size:11px;padding:5px 9px;" onclick="saveNew()">추가</button>
+        <button class="btn-xc" style="font-size:11px;padding:5px 7px;" onclick="cancelAdd()">취소</button>
+      </td></tr>`;
+  }
+  if(!c.products.length&&!addingP){
+    h='<tr><td colspan="7" style="text-align:center;padding:26px;color:#bbb;font-size:13px;">품목 없음 · "+ 품목 추가" 를 눌러 추가하세요</td></tr>';
+  }
+  tb.innerHTML=h;
+  if(addingP)$('np_n')?.focus();
+  if(editPid)$('ep_n')?.focus();
+}
+
+function startAdd(){addingP=true;editPid=null;renderProds();}
+function cancelAdd(){addingP=false;renderProds();}
+function startEdit(id){editPid=id;addingP=false;renderProds();}
+function cancelEdit(){editPid=null;renderProds();}
+
+function saveNew(){
+  const name=($('np_n')?.value||'').trim();
+  if(!name){alert('품명을 입력하세요.');return;}
+  const c=D.customers.find(x=>x.id===selId);if(!c)return;
+  c.products.push({id:uid(),name,spec:$('np_s')?.value.trim()||'',unit:$('np_u')?.value.trim()||'ea',price:parseFloat($('np_p')?.value)||0,note:$('np_no')?.value.trim()||''});
+  addingP=false;markDirty();renderProds();renderList();toast('품목 추가됨','ok');
+}
+
+function saveProd(pid){
+  const c=D.customers.find(x=>x.id===selId);if(!c)return;
+  const p=c.products.find(x=>x.id===pid);if(!p)return;
+  p.name=$('ep_n')?.value.trim()||p.name;
+  p.spec=$('ep_s')?.value.trim()||'';
+  p.unit=$('ep_u')?.value.trim()||'ea';
+  p.price=parseFloat($('ep_p')?.value)||0;
+  p.note=$('ep_no')?.value.trim()||'';
+  editPid=null;markDirty();renderProds();toast('저장됨','ok');
+}
+
+function delP(pid){
+  const c=D.customers.find(x=>x.id===selId);if(!c)return;
+  const p=c.products.find(x=>x.id===pid);
+  if(!confirm(`"${p?.name}" 품목을 삭제하시겠습니까?`))return;
+  c.products=c.products.filter(x=>x.id!==pid);
+  markDirty();renderProds();renderList();toast('삭제됨','ok');
+}
+
+/* ── INIT ── */
+async function init(){
+  if(!hasCfg()){
+    $('obView').style.display='flex';
+    $('appView').style.display='none';
+    setSt('x','GitHub 연결 필요');
+    return;
+  }
+  $('obView').style.display='none';
+  $('appView').style.display='flex';
+  await loadData();
+}
+
+/* ── PASSWORD ── */
+const PW='rewindlab2026'; // ← 비밀번호 변경 시 이 부분만 수정
+function tryLogin(){
+  if($('pwInput').value===PW){
+    sessionStorage.setItem('rl_auth','ok');
+    $('pwScreen').style.display='none';
+    $('pwInput').value='';
+  } else {
+    $('pwErr').style.display='block';
+    $('pwInput').value='';
+    $('pwInput').focus();
+    setTimeout(()=>$('pwErr').style.display='none',2500);
+  }
+}
+if(sessionStorage.getItem('rl_auth')==='ok') $('pwScreen').style.display='none';
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){editPid=null;addingP=false;addingC=false;editingC=false;renderContent();}
+});
+window.addEventListener('beforeunload',e=>{
+  if(isDirty){e.preventDefault();e.returnValue='저장되지 않은 변경사항이 있습니다.';}
+});
+
+init();
+</script>
+</body>
+</html>
