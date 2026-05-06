@@ -28,6 +28,9 @@ header h1{color:#fff;font-size:16px;font-weight:600;}
 .r2{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
 
+.pl-sort-btn{padding:4px 10px;border:1px solid #c8d0e8;border-radius:4px;background:#fff;color:#888;font-family:'Noto Sans KR',sans-serif;font-size:11px;cursor:pointer;transition:all .15s;}
+.pl-sort-btn:hover{border-color:var(--navy);color:var(--navy);}
+.pl-sort-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:600;}
 /* PRICE LIST BAR */
 .pl-bar{background:#eef1fa;border:1px solid #c8d0e8;border-radius:7px;padding:10px 12px;margin-bottom:8px;}
 .pl-t{font-size:11px;font-weight:600;color:var(--navy);margin-bottom:6px;}
@@ -323,22 +326,60 @@ function loadPricelist() {
   }
 }
 
+var plSortMode = 'recent';
+
+function getSortedCustomers() {
+  if (!plData || !plData.customers) return [];
+  var list = plData.customers.slice();
+  if (plSortMode === 'asc') list.sort(function(a,b){return a.name.localeCompare(b.name,'ko');});
+  else if (plSortMode === 'desc') list.sort(function(a,b){return b.name.localeCompare(a.name,'ko');});
+  else list.sort(function(a,b){return (b.lastUsed||0)-(a.lastUsed||0);});
+  return list;
+}
+
+function setPlSort(mode) {
+  plSortMode = mode;
+  var labels = {recent:'최근 사용순', asc:'ㄱ→ㅎ', desc:'ㅎ→ㄱ'};
+  ['recent','asc','desc'].forEach(function(m) {
+    var btn = $('plsort_'+m);
+    if (btn) btn.className = 'pl-sort-btn' + (m===mode?' active':'');
+  });
+  refreshPlSelect();
+}
+
+function refreshPlSelect() {
+  var sel = $('plCustSel');
+  if (!sel) return;
+  var cur = sel.value;
+  var sorted = getSortedCustomers();
+  sel.innerHTML = '<option value="">-- 거래처 선택 --</option>' +
+    sorted.map(function(c) {
+      return '<option value="'+c.id+'">' + esc(c.name) + ' (품목 '+c.products.length+'개)</option>';
+    }).join('');
+  if (cur) sel.value = cur;
+}
+
 function renderPlBar(state, msg) {
   var st = $('plSt');
   var body = $('plBody');
   if (!st || !body) return;
   if (state === 'ready' && plData) {
     st.textContent = '· ' + plData.customers.length + '개 거래처 연결됨';
-    var opts = plData.customers.map(function(c) {
-      return '<option value="' + c.id + '">' + esc(c.name) + ' (품목 ' + c.products.length + '개)</option>';
-    }).join('');
     body.innerHTML =
-      '<select id="plCustSel" onchange="onCustSel()" style="width:100%;padding:6px 9px;border:1px solid #c8d0e8;border-radius:4px;font-family:\'Noto Sans KR\',sans-serif;font-size:12px;margin-bottom:6px;">' +
-      '<option value="">-- 거래처 선택 --</option>' + opts + '</select>' +
+      '<div style="display:flex;gap:5px;margin-bottom:6px;align-items:center;">' +
+        '<span style="font-size:11px;color:#888;flex-shrink:0;">정렬:</span>' +
+        '<button id="plsort_recent" class="pl-sort-btn active" onclick="setPlSort(\'recent\')">최근 사용순</button>' +
+        '<button id="plsort_asc" class="pl-sort-btn" onclick="setPlSort(\'asc\')">ㄱ→ㅎ</button>' +
+        '<button id="plsort_desc" class="pl-sort-btn" onclick="setPlSort(\'desc\')">ㅎ→ㄱ</button>' +
+      '</div>' +
+      '<select id="plCustSel" onchange="onCustSel()" style="width:100%;padding:7px 9px;border:1px solid #c8d0e8;border-radius:4px;font-family:\'Noto Sans KR\',sans-serif;font-size:12px;margin-bottom:6px;">' +
+        '<option value="">-- 거래처 선택 --</option>' +
+      '</select>' +
       '<div class="pl-btns">' +
-      '<button class="btn-pl" onclick="applyPl()">이 거래처 품목 적용</button>' +
-      '<button class="btn-pl-o" onclick="clearItems()">품목 초기화</button>' +
+        '<button class="btn-pl" onclick="applyPl()">이 거래처 품목 적용</button>' +
+        '<button class="btn-pl-out" onclick="clearItems()">품목 초기화</button>' +
       '</div>';
+    refreshPlSelect();
   } else if (state === 'no-data') {
     st.textContent = '· 데이터 없음';
     body.innerHTML = '<div style="font-size:12px;color:#aaa;">가격표에 거래처가 없습니다. <a href="pricelist.html" style="color:var(--navy);">가격표 관리</a>에서 추가하세요.</div>';
@@ -355,6 +396,8 @@ function onCustSel() {
   if (!cid) return;
   var c = plData.customers.filter(function(x) { return x.id === cid; })[0];
   if (!c) return;
+  // 최근 사용 기록 (로컬 메모리 - 정렬용)
+  c.lastUsed = Date.now();
   if (c.name)    $('rcvName').value = c.name;
   if (c.ceo)     $('rcvCeo').value = c.ceo;
   if (c.bizNo)   $('rcvBizNo').value = c.bizNo;
@@ -663,4 +706,3 @@ window.onload = init;
 </script>
 </body>
 </html>
- 
