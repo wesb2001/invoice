@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-06T04:48:05.225Z",
+  "updatedAt": "2026-05-06T04:48:26.689Z",
   "customers": [
     {
       "id": "x0001",
@@ -1552,10 +1552,10 @@
         },
         {
           "id": "motktiexrsies",
-          "name": "dd",
-          "spec": "",
+          "name": "릴릴 그린애플 선스틱",
+          "spec": "25g",
           "unit": "ea",
-          "price": 0,
+          "price": 8800,
           "note": ""
         }
       ]
