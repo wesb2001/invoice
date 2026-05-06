@@ -234,16 +234,29 @@ async function loadData(){
   setSt('load','GitHub에서 불러오는 중...');
   $('btnRef').disabled=true;
   try{
-    const r=await fetch(rawUrl()+'?t='+Date.now());
-    if(r.status===404){D={customers:[]};setSt('ok','연결됨 · 데이터 없음 (첫 저장 시 자동 생성)');}
-    else if(!r.ok){throw new Error('HTTP '+r.status);}
-    else{
-      D=await r.json();
-      if(!Array.isArray(D.customers))D.customers=[];
-      const c=getCfg();
-      const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-      setSt('ok',`<strong>${c.repo}</strong> 연결됨 &nbsp;·&nbsp; ${t} 기준 &nbsp;·&nbsp; 거래처 <strong>${D.customers.length}</strong>개`);
+    const cfg=getCfg();
+    let json;
+    if(cfg.token){
+      // 토큰 있으면 GitHub Contents API 사용 (CDN 캐시 없음, 항상 최신)
+      const hdrs={'Authorization':'Bearer '+cfg.token,'Accept':'application/vnd.github+json'};
+      const r=await fetch(apiUrl(),{headers:hdrs});
+      if(r.status===404){D={customers:[]};setSt('ok','연결됨 · 데이터 없음 (첫 저장 시 자동 생성)');setDirty(false);renderList();renderContent();return;}
+      if(!r.ok){throw new Error('HTTP '+r.status);}
+      const meta=await r.json();
+      // Base64 디코딩
+      const raw=atob(meta.content.replace(/\n/g,''));
+      json=JSON.parse(decodeURIComponent(escape(raw)));
+    } else {
+      // 토큰 없으면 raw URL fallback
+      const r=await fetch(rawUrl()+'?t='+Date.now());
+      if(r.status===404){D={customers:[]};setSt('ok','연결됨 · 데이터 없음');setDirty(false);renderList();renderContent();return;}
+      if(!r.ok){throw new Error('HTTP '+r.status);}
+      json=await r.json();
     }
+    D=json;
+    if(!Array.isArray(D.customers))D.customers=[];
+    const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+    setSt('ok',`<strong>${cfg.repo}</strong> 연결됨 &nbsp;·&nbsp; ${t} 기준 &nbsp;·&nbsp; 거래처 <strong>${D.customers.length}</strong>개`);
     setDirty(false);renderList();renderContent();
   }catch(e){setSt('err','불러오기 실패: '+e.message);toast('불러오기 실패: '+e.message,'err');}
   finally{$('btnRef').disabled=false;}

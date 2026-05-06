@@ -249,20 +249,30 @@ function init(){
 async function loadPricelist(){
   const cfg=JSON.parse(localStorage.getItem('rl_gh_cfg2')||'{}');
   const repo=cfg.repo||'wesb2001/invoice';
-  const branch=cfg.branch||'main';
   const file=cfg.file||'pricelist.json';
-  const url=`https://raw.githubusercontent.com/${repo}/${branch}/${file}?t=${Date.now()}`;
   try{
-    const r=await fetch(url);
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    plData=await r.json();
-    if(!Array.isArray(plData.customers)||!plData.customers.length){
-      renderPlBar('no-data');return;
+    let data;
+    if(cfg.token){
+      // API로 읽기 (캐시 없음)
+      const apiUrl=`https://api.github.com/repos/${repo}/contents/${file}`;
+      const hdrs={'Authorization':'Bearer '+cfg.token,'Accept':'application/vnd.github+json'};
+      const r=await fetch(apiUrl,{headers:hdrs});
+      if(r.status===404){renderPlBar('no-data');return;}
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const meta=await r.json();
+      const raw=atob(meta.content.replace(/\n/g,''));
+      data=JSON.parse(decodeURIComponent(escape(raw)));
+    } else {
+      // 토큰 없으면 raw URL
+      const url=`https://raw.githubusercontent.com/${repo}/main/${file}?t=${Date.now()}`;
+      const r=await fetch(url);
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      data=await r.json();
     }
+    plData=data;
+    if(!Array.isArray(plData.customers)||!plData.customers.length){renderPlBar('no-data');return;}
     renderPlBar('ready');
-  }catch(e){
-    renderPlBar('error',e.message);
-  }
+  }catch(e){renderPlBar('error',e.message);}
 }
 
 function renderPlBar(state, msg){
@@ -457,7 +467,7 @@ function dlExcel(){
 }
 
 /* ── PASSWORD ── */
-const PW='2660'; // ← 비밀번호 변경 시 이 부분만 수정
+const PW='rewindlab2026'; // ← 비밀번호 변경 시 이 부분만 수정
 function tryLogin(){
   if($('pwInput').value===PW){
     sessionStorage.setItem('rl_auth','ok');
