@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-06T05:24:47.968Z",
+  "updatedAt": "2026-05-06T05:58:07.440Z",
   "customers": [
     {
       "id": "x0001",
@@ -1538,9 +1538,9 @@
     {
       "id": "moti3rcj67la7",
       "name": "남대문약국",
-      "bizNo": "",
-      "contact": "",
-      "address": "",
+      "bizNo": "811-38-00266",
+      "contact": "ndmpharm2022@gmail.com",
+      "address": "서울특별시 중구 남대문로 20, 1층(남대문로3가)",
       "products": [
         {
           "id": "moti3yo3xqj9e",
@@ -1566,7 +1566,10 @@
           "price": 9000,
           "note": ""
         }
-      ]
+      ],
+      "ceo": "방형기",
+      "bizType": "소매업",
+      "bizItem": "의약품"
     }
   ]
 }
