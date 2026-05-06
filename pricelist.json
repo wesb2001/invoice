@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-06T04:41:39.375Z",
+  "updatedAt": "2026-05-06T04:44:21.336Z",
   "customers": [
     {
       "id": "x0001",
@@ -1548,22 +1548,6 @@
           "spec": "50ml",
           "unit": "ea",
           "price": 8800,
-          "note": ""
-        },
-        {
-          "id": "motkkspw8vfq2",
-          "name": "릴릴 그린애플 노세범 선스틱",
-          "spec": "21g",
-          "unit": "ea",
-          "price": 8800,
-          "note": ""
-        },
-        {
-          "id": "motklex5hd6f8",
-          "name": "릴릴 코랄센텔라 선쿠션",
-          "spec": "25g",
-          "unit": "ea",
-          "price": 9900,
           "note": ""
         }
       ]
