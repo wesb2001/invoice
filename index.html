@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>거래명세서 생성기 | 리와인드랩</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a2f5a;--navy2:#243870;--accent:#c8a96e;
+  --bg:#f4f4f0;--white:#ffffff;--border:#d8d8d4;
+  --text:#1e1e1e;--muted:#888;--surface:#f9f9f7;
+  --green:#1d7a4f;--radius:8px;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── HEADER ── */
+header{background:var(--navy);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;}
+header h1{color:#fff;font-size:17px;font-weight:600;letter-spacing:-0.3px;}
+header span{color:var(--accent);font-size:12px;font-weight:500;}
+
+/* ── LAYOUT ── */
+.wrap{display:grid;grid-template-columns:400px 1fr;min-height:calc(100vh - 52px);}
+
+/* ── FORM PANEL ── */
+.form-panel{background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.form-body{flex:1;padding:20px;}
+.form-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--white);}
+
+/* Section blocks */
+.sec{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;}
+.sec-title{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--navy);margin-bottom:12px;}
+.field{margin-bottom:8px;}
+.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:500;}
+.field input,.field select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:5px;font-family:'Noto Sans KR',sans-serif;font-size:13px;color:var(--text);background:#fff;transition:border-color .15s;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--navy);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+
+/* ── ITEMS ── */
+.items-head{display:grid;grid-template-columns:22px 1fr 68px 68px 90px 95px 24px;gap:4px;padding:0 0 7px;border-bottom:1px solid var(--border);margin-bottom:6px;}
+.items-head span{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.5px;}
+.item-row{display:grid;grid-template-columns:22px 1fr 68px 68px 90px 95px 24px;gap:4px;align-items:center;margin-bottom:5px;}
+.item-row .rn{font-size:11px;color:var(--muted);text-align:center;}
+.item-row input{padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-family:'Noto Sans KR',sans-serif;font-size:12px;width:100%;}
+.item-row input:focus{outline:none;border-color:var(--navy);}
+.item-row .auto{padding:6px 8px;font-size:12px;color:var(--muted);text-align:right;background:#f5f5f2;border:1px solid #e8e8e4;border-radius:4px;white-space:nowrap;overflow:hidden;}
+.btn-del{background:none;border:none;cursor:pointer;color:#ccc;font-size:16px;padding:0;line-height:1;transition:color .15s;text-align:center;}
+.btn-del:hover{color:#e53;}
+.btn-add{width:100%;margin-top:6px;padding:8px;background:none;border:1px dashed var(--border);border-radius:5px;font-family:'Noto Sans KR',sans-serif;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;}
+.btn-add:hover{border-color:var(--navy);color:var(--navy);background:#f0f2f8;}
+
+/* ── TOTALS ── */
+.totals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.total-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px 12px;}
+.total-card.highlight{background:#eef1f9;border-color:#c5ccdf;}
+.total-card .lbl{font-size:10px;color:var(--muted);margin-bottom:3px;}
+.total-card .val{font-size:16px;font-weight:600;color:var(--text);}
+.total-card.highlight .val{color:var(--navy);font-size:18px;}
+
+/* ── BUTTONS ── */
+.btn-primary{flex:2;padding:11px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s;}
+.btn-primary:hover{background:var(--navy2);}
+.btn-secondary{flex:1;padding:11px;background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:7px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
+.btn-secondary:hover{background:var(--navy);color:#fff;}
+
+/* ── PREVIEW PANEL ── */
+.preview-panel{background:#e8e8e3;padding:28px;overflow-y:auto;display:flex;flex-direction:column;align-items:center;}
+.preview-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#999;margin-bottom:14px;}
+.document{background:#fff;width:680px;padding:36px;box-shadow:0 2px 24px rgba(0,0,0,.12);}
+
+/* ── DOC STYLES ── */
+.doc-title{text-align:center;font-size:22px;font-weight:600;letter-spacing:6px;color:var(--navy);margin-bottom:22px;padding-bottom:16px;border-bottom:2px solid var(--navy);}
+.doc-meta{text-align:right;font-size:11px;color:var(--muted);margin-bottom:10px;margin-top:-12px;}
+.doc-parties{display:grid;grid-template-columns:1fr 1fr;border:1px solid #444;margin-bottom:10px;}
+.party{padding:11px 14px;}
+.party:first-child{border-right:1px solid #444;}
+.party-hd{font-size:10px;font-weight:700;color:var(--navy);letter-spacing:.8px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #eee;}
+.party-row{display:flex;gap:8px;margin-bottom:4px;font-size:11.5px;}
+.party-lbl{min-width:68px;color:var(--muted);}
+.party-val{font-weight:500;}
+.doc-sums{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #444;border-top:none;margin-bottom:10px;}
+.sum-cell{padding:9px 14px;border-right:1px solid #444;}
+.sum-cell:last-child{border-right:none;background:#f0f3fa;}
+.sum-cell .s-lbl{font-size:10px;color:var(--muted);margin-bottom:2px;}
+.sum-cell .s-val{font-size:14px;font-weight:700;color:var(--navy);}
+.sum-cell:last-child .s-val{font-size:16px;}
+.doc-table{width:100%;border-collapse:collapse;font-size:12px;}
+.doc-table th{background:var(--navy);color:#fff;padding:8px 7px;text-align:center;font-weight:500;border:1px solid var(--navy);}
+.doc-table th.left{text-align:left;padding-left:10px;}
+.doc-table th.right{text-align:right;padding-right:8px;}
+.doc-table td{padding:7px 7px;border:1px solid #ccc;text-align:right;}
+.doc-table td.center{text-align:center;}
+.doc-table td.left{text-align:left;padding-left:10px;}
+.doc-table tr:nth-child(even) td{background:#fafaf8;}
+.doc-table .total-row td{background:#eef1f9!important;font-weight:700;color:var(--navy);border-top:2px solid var(--navy);}
+.doc-note{margin-top:10px;padding:8px 12px;background:#fafaf8;border:1px solid #e4e4e0;border-radius:4px;font-size:11.5px;color:var(--muted);}
+.doc-sign{margin-top:18px;text-align:right;font-size:10.5px;color:#aaa;}
+
+/* ── PRINT ── */
+@media print{
+  header,.form-panel,.preview-label{display:none!important;}
+  .wrap{display:block;}
+  .preview-panel{background:#fff;padding:0;}
+  .document{box-shadow:none;width:100%;padding:0;}
+  @page{margin:20mm;}
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .wrap{grid-template-columns:1fr;}
+  .preview-panel{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📄 거래명세서 생성기</h1>
+  <span>주식회사 리와인드랩</span>
+</header>
+
+<div class="wrap">
+
+  <!-- ===== FORM PANEL ===== -->
+  <div class="form-panel">
+    <div class="form-body">
+
+      <!-- 기본 정보 -->
+      <div class="sec">
+        <div class="sec-title">기본 정보</div>
+        <div class="row3">
+          <div class="field"><label>작성일</label><input type="date" id="issueDate" oninput="upd()"></div>
+          <div class="field"><label>문서번호</label><input type="text" id="docNo" placeholder="RL-2026-001" oninput="upd()"></div>
+          <div class="field"><label>세금 유형</label>
+            <select id="taxType" onchange="upd()">
+              <option value="taxable">과세 (10%)</option>
+              <option value="exempt">면세</option>
+              <option value="zero">영세율</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 공급받는자 -->
+      <div class="sec">
+        <div class="sec-title">공급받는자 (거래처)</div>
+        <div class="field"><label>상호</label><input type="text" id="rcvName" placeholder="거래처 상호명" oninput="upd()"></div>
+        <div class="row2">
+          <div class="field"><label>대표자</label><input type="text" id="rcvCeo" placeholder="대표자명" oninput="upd()"></div>
+          <div class="field"><label>사업자등록번호</label><input type="text" id="rcvBizNo" placeholder="000-00-00000" oninput="upd()"></div>
+        </div>
+        <div class="field"><label>주소</label><input type="text" id="rcvAddr" placeholder="주소" oninput="upd()"></div>
+        <div class="row2">
+          <div class="field"><label>업태</label><input type="text" id="rcvType" placeholder="업태" oninput="upd()"></div>
+          <div class="field"><label>종목</label><input type="text" id="rcvItem" placeholder="종목" oninput="upd()"></div>
+        </div>
+      </div>
+
+      <!-- 공급자 -->
+      <div class="sec">
+        <div class="sec-title">공급자 (발행사)</div>
+        <div class="field"><label>상호</label><input type="text" id="supName" value="주식회사 리와인드랩" oninput="upd()"></div>
+        <div class="row2">
+          <div class="field"><label>대표자</label><input type="text" id="supCeo" value="황윤재" oninput="upd()"></div>
+          <div class="field"><label>사업자등록번호</label><input type="text" id="supBizNo" placeholder="000-00-00000" oninput="upd()"></div>
+        </div>
+        <div class="field"><label>주소</label><input type="text" id="supAddr" value="대구광역시" oninput="upd()"></div>
+        <div class="row2">
+          <div class="field"><label>업태</label><input type="text" id="supType" value="제조, 도소매" oninput="upd()"></div>
+          <div class="field"><label>종목</label><input type="text" id="supItem" value="화장품, 미용기기" oninput="upd()"></div>
+        </div>
+      </div>
+
+      <!-- 품목 -->
+      <div class="sec">
+        <div class="sec-title">품목</div>
+        <div class="items-head">
+          <span>#</span><span>품명</span><span style="text-align:center">규격/단위</span>
+          <span style="text-align:right">수량</span><span style="text-align:right">단가</span>
+          <span style="text-align:right">공급가액</span><span></span>
+        </div>
+        <div id="itemsBody"></div>
+        <button class="btn-add" onclick="addRow()">+ 품목 추가</button>
+      </div>
+
+      <!-- 합계 -->
+      <div class="totals">
+        <div class="total-card"><div class="lbl">공급가액</div><div class="val" id="tSup">₩0</div></div>
+        <div class="total-card"><div class="lbl" id="taxLbl">세액 (10%)</div><div class="val" id="tTax">₩0</div></div>
+        <div class="total-card highlight"><div class="lbl">합계금액</div><div class="val" id="tGrand">₩0</div></div>
+      </div>
+
+      <!-- 비고 -->
+      <div class="sec">
+        <div class="sec-title">비고</div>
+        <div class="field"><input type="text" id="note" placeholder="결제조건, 특이사항 등" oninput="upd()"></div>
+      </div>
+
+    </div><!-- /form-body -->
+
+    <div class="form-footer">
+      <button class="btn-primary" onclick="dlExcel()">⬇ Excel 다운로드</button>
+      <button class="btn-secondary" onclick="doPrint()">🖨 인쇄/PDF</button>
+    </div>
+  </div><!-- /form-panel -->
+
+  <!-- ===== PREVIEW PANEL ===== -->
+  <div class="preview-panel">
+    <div class="preview-label">실시간 미리보기</div>
+    <div class="document" id="docEl"></div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+let rows=[], cnt=0;
+const $=id=>document.getElementById(id);
+const fmt=n=>(Math.round(n)||0).toLocaleString('ko-KR');
+
+function init(){
+  const t=new Date();
+  $('issueDate').value=t.toISOString().slice(0,10);
+  addRow();addRow();addRow();
+  upd();
+}
+
+function addRow(){
+  cnt++;
+  rows.push({id:cnt});
+  renderRows();
+}
+
+function delRow(id){
+  rows=rows.filter(r=>r.id!==id);
+  renderRows();
+  upd();
+}
+
+function renderRows(){
+  const b=$('itemsBody');
+  b.innerHTML='';
+  rows.forEach((r,i)=>{
+    const d=document.createElement('div');
+    d.className='item-row';
+    d.innerHTML=`
+      <span class="rn">${i+1}</span>
+      <input type="text" id="n${r.id}" placeholder="품명" oninput="upd()">
+      <input type="text" id="u${r.id}" placeholder="ea" oninput="upd()" style="text-align:center;">
+      <input type="number" id="q${r.id}" placeholder="0" min="0" oninput="upd()" style="text-align:right;">
+      <input type="number" id="p${r.id}" placeholder="0" min="0" oninput="upd()" style="text-align:right;">
+      <div class="auto" id="s${r.id}">—</div>
+      <button class="btn-del" onclick="delRow(${r.id})">✕</button>`;
+    b.appendChild(d);
+  });
+  upd();
+}
+
+function getVal(id){return ($( id)||{}).value||'';}
+function getNum(id){return parseFloat(getVal(id))||0;}
+
+function getItems(){
+  const tt=getVal('taxType');
+  return rows.map((r,i)=>{
+    const name=getVal('n'+r.id), unit=getVal('u'+r.id);
+    const qty=getNum('q'+r.id), price=getNum('p'+r.id);
+    const sup=qty*price;
+    const tax=tt==='taxable'?Math.round(sup*0.1):0;
+    return{no:i+1,name,unit,qty,price,sup,tax,total:sup+tax};
+  }).filter(i=>i.name||i.sup>0);
+}
+
+function upd(){
+  const items=getItems();
+  const tt=getVal('taxType');
+  const tSup=items.reduce((a,i)=>a+i.sup,0);
+  const tTax=items.reduce((a,i)=>a+i.tax,0);
+  const grand=tSup+tTax;
+
+  $('tSup').textContent='₩'+fmt(tSup);
+  $('tTax').textContent='₩'+fmt(tTax);
+  $('tGrand').textContent='₩'+fmt(grand);
+  $('taxLbl').textContent=tt==='taxable'?'세액 (VAT 10%)':tt==='exempt'?'세액 (면세)':'세액 (영세율)';
+
+  rows.forEach(r=>{
+    const qty=getNum('q'+r.id), price=getNum('p'+r.id);
+    const sup=qty*price;
+    const el=$('s'+r.id);
+    if(el)el.textContent=sup>0?fmt(sup)+'원':'—';
+  });
+
+  renderDoc(items,tSup,tTax,grand);
+}
+
+function renderDoc(items,tSup,tTax,grand){
+  const d={
+    issueDate:getVal('issueDate'),docNo:getVal('docNo'),
+    rcvName:getVal('rcvName')||'—',rcvCeo:getVal('rcvCeo')||'—',
+    rcvBizNo:getVal('rcvBizNo')||'—',rcvAddr:getVal('rcvAddr')||'—',
+    rcvType:getVal('rcvType')||'—',rcvItem:getVal('rcvItem')||'—',
+    supName:getVal('supName')||'주식회사 리와인드랩',supCeo:getVal('supCeo')||'황윤재',
+    supBizNo:getVal('supBizNo')||'—',supAddr:getVal('supAddr')||'—구광역시',
+    supType:getVal('supType')||'—',supItem:getVal('supItem')||'—',
+    note:getVal('note'),
+  };
+  const tt=getVal('taxType');
+  const taxLbl=tt==='taxable'?'과세 (VAT 10%)':tt==='exempt'?'면세':'영세율';
+
+  const pr=(lbl,val)=>`<div class="party-row"><span class="party-lbl">${lbl}</span><span class="party-val">${val}</span></div>`;
+
+  const empty=Math.max(0,8-items.length);
+  const irows=items.map(i=>`
+    <tr>
+      <td class="center">${i.no}</td>
+      <td class="left">${i.name}</td>
+      <td class="center">${i.unit||''}</td>
+      <td>${fmt(i.qty)}</td>
+      <td>${fmt(i.price)}</td>
+      <td>${fmt(i.sup)}</td>
+      <td>${fmt(i.tax)}</td>
+      <td><strong>${fmt(i.total)}</strong></td>
+    </tr>`).join('');
+  const blanks=Array(empty).fill('<tr>'+Array(8).fill('<td>&nbsp;</td>').join('')+'</tr>').join('');
+
+  $('docEl').innerHTML=`
+    <div class="doc-title">거래명세서</div>
+    ${d.docNo?`<div class="doc-meta">No. ${d.docNo}</div>`:''}
+    <div class="doc-parties">
+      <div class="party">
+        <div class="party-hd">▶ 공급받는자</div>
+        ${pr('상호',d.rcvName)}${pr('대표자',d.rcvCeo)}
+        ${pr('사업자번호',d.rcvBizNo)}${pr('주소',d.rcvAddr)}
+        ${pr('업태/종목',d.rcvType+' / '+d.rcvItem)}
+      </div>
+      <div class="party">
+        <div class="party-hd">▶ 공급자</div>
+        ${pr('상호',d.supName)}${pr('대표자',d.supCeo)}
+        ${pr('사업자번호',d.supBizNo)}${pr('주소',d.supAddr)}
+        ${pr('업태/종목',d.supType+' / '+d.supItem)}
+      </div>
+    </div>
+    <div class="doc-sums">
+      <div class="sum-cell"><div class="s-lbl">작성일</div><div class="s-val" style="font-size:13px;">${d.issueDate||'—'}</div></div>
+      <div class="sum-cell"><div class="s-lbl">공급가액</div><div class="s-val">₩${fmt(tSup)}</div></div>
+      <div class="sum-cell"><div class="s-lbl">세액 (${taxLbl})</div><div class="s-val">₩${fmt(tTax)}</div></div>
+      <div class="sum-cell" style="background:#eef1fa"><div class="s-lbl">합계금액</div><div class="s-val">₩${fmt(grand)}</div></div>
+    </div>
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th style="width:30px">No.</th>
+          <th class="left">품명</th>
+          <th style="width:65px">규격/단위</th>
+          <th class="right" style="width:55px">수량</th>
+          <th class="right" style="width:90px">단가</th>
+          <th class="right" style="width:95px">공급가액</th>
+          <th class="right" style="width:80px">세액</th>
+          <th class="right" style="width:95px">합계</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${irows}${blanks}
+        <tr class="total-row">
+          <td colspan="5" class="center">합 계</td>
+          <td>₩${fmt(tSup)}</td>
+          <td>₩${fmt(tTax)}</td>
+          <td>₩${fmt(grand)}</td>
+        </tr>
+      </tbody>
+    </table>
+    ${d.note?`<div class="doc-note"><strong>비고:</strong> ${d.note}</div>`:''}
+    <div class="doc-sign">위와 같이 거래명세서를 발행합니다.</div>`;
+}
+
+function dlExcel(){
+  if(typeof XLSX==='undefined'){alert('잠시 후 다시 시도해주세요.');return;}
+  const items=getItems();
+  const tt=getVal('taxType');
+  const tSup=items.reduce((a,i)=>a+i.sup,0);
+  const tTax=items.reduce((a,i)=>a+i.tax,0);
+  const grand=tSup+tTax;
+  const taxLbl=tt==='taxable'?'과세(VAT 10%)':tt==='exempt'?'면세':'영세율';
+  const rcv=getVal('rcvName')||'거래처';
+  const date=getVal('issueDate')||'';
+  const docNo=getVal('docNo')||'';
+  const note=getVal('note')||'';
+
+  const aoa=[
+    ['거래명세서'],
+    [],
+    docNo?['문서번호',docNo]:[],
+    ['작성일',date],
+    [],
+    ['[공급받는자]','','','','[공급자]'],
+    ['상호',rcv,'','','상호',getVal('supName')],
+    ['대표자',getVal('rcvCeo'),'','','대표자',getVal('supCeo')],
+    ['사업자번호',getVal('rcvBizNo'),'','','사업자번호',getVal('supBizNo')],
+    ['주소',getVal('rcvAddr'),'','','주소',getVal('supAddr')],
+    ['업태/종목',getVal('rcvType')+' / '+getVal('rcvItem'),'','','업태/종목',getVal('supType')+' / '+getVal('supItem')],
+    [],
+    ['공급가액',tSup,'','세액('+taxLbl+')',tTax,'','합계금액',grand],
+    [],
+    ['No.','품명','규격/단위','수량','단가','공급가액','세액','합계'],
+    ...items.map(i=>[i.no,i.name,i.unit,i.qty,i.price,i.sup,i.tax,i.total]),
+    ['','합 계','','','',tSup,tTax,grand],
+    [],
+    note?['비고',note]:[],
+  ].filter(r=>r.length>0);
+
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols']=[{wch:12},{wch:30},{wch:12},{wch:8},{wch:14},{wch:14},{wch:12},{wch:14}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'거래명세서');
+  XLSX.writeFile(wb,`거래명세서_${rcv}_${date}.xlsx`);
+}
+
+function doPrint(){
+  window.print();
+}
+
+init();
+</script>
+</body>
+</html>
