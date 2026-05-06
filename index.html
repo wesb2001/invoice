@@ -218,7 +218,7 @@ header h1{color:#fff;font-size:17px;font-weight:600;}
     </div>
     <div class="form-footer">
       <button class="btn-primary" onclick="dlExcel()">⬇ Excel 다운로드</button>
-      <button class="btn-secondary" onclick="window.print()">🖨 인쇄/PDF</button>
+      <button class="btn-secondary" onclick="doPrint()">🖨 인쇄/PDF</button>
     </div>
   </div>
 
@@ -484,6 +484,58 @@ function tryLogin(){
   }
 }
 if(sessionStorage.getItem('rl_auth')==='ok') $('pwScreen').style.display='none';
+
+/* ── PRINT ── */
+function doPrint(){
+  if(!content||content.trim()===''){alert('먼저 거래처와 품목을 입력하세요.');return;}
+  const w=window.open('','_blank','width=860,height=1000');
+  if(!w){alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');return;}
+  w.document.write(`<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>거래명세서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;color:#1e1e1e;padding:28px;max-width:750px;margin:0 auto;}
+:root{--navy:#1a2f5a;--muted:#888;--border:#d8d8d4;}
+.doc-title{text-align:center;font-size:22px;font-weight:600;letter-spacing:6px;color:var(--navy);margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid var(--navy);}
+.doc-meta{text-align:right;font-size:11px;color:var(--muted);margin-bottom:9px;margin-top:-12px;}
+.doc-parties{display:grid;grid-template-columns:1fr 1fr;border:1px solid #444;margin-bottom:9px;}
+.party{padding:10px 13px;}
+.party:first-child{border-right:1px solid #444;}
+.party-hd{font-size:10px;font-weight:700;color:var(--navy);letter-spacing:.8px;margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid #eee;}
+.party-row{display:flex;gap:7px;margin-bottom:3px;font-size:11px;}
+.party-lbl{min-width:64px;color:var(--muted);flex-shrink:0;}
+.party-val{font-weight:500;word-break:keep-all;}
+.doc-sums{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border:1px solid #444;border-top:none;margin-bottom:9px;}
+.sc{padding:8px 12px;border-right:1px solid #444;}
+.sc:last-child{border-right:none;background:#f0f3fa;}
+.sl{font-size:10px;color:var(--muted);margin-bottom:2px;}
+.sv{font-size:13px;font-weight:700;color:var(--navy);}
+.sc:last-child .sv{font-size:15px;}
+.doc-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;}
+.doc-table th{background:var(--navy);color:#fff;padding:8px 7px;text-align:center;font-weight:500;border:1px solid var(--navy);white-space:nowrap;overflow:hidden;}
+.doc-table th.l{text-align:left;padding-left:9px;}
+.doc-table th.r{text-align:right;padding-right:7px;}
+.doc-table td{padding:7px 7px;border:1px solid #ccc;text-align:right;overflow:hidden;}
+.doc-table td.c{text-align:center;}
+.doc-table td.l{text-align:left;padding-left:9px;word-break:keep-all;}
+.doc-table tr:nth-child(even) td{background:#fafaf8;}
+.trt td{background:#eef1f9!important;font-weight:700;color:var(--navy);border-top:2px solid var(--navy);}
+.doc-note{margin-top:9px;padding:7px 11px;background:#fafaf8;border:1px solid #e4e4e0;border-radius:3px;font-size:11px;color:var(--muted);}
+.doc-sign{margin-top:16px;text-align:right;font-size:10px;color:#aaa;}
+@page{margin:15mm;}
+@media print{body{padding:0;}}
+</style>
+</head>
+<body>${content}
+<script>window.onload=function(){window.print();}<\/script>
+</body></html>`);
+  w.document.close();
+}
 
 init();
 </script>
