@@ -251,6 +251,9 @@ async function loadData(){
 
 async function saveToGitHub(){
   if(!hasCfg()){alert('먼저 GitHub 설정을 완료하세요.');toggleCfg();return;}
+  // 편집 중인 행 자동 저장
+  if(editPid) saveProd(editPid);
+  if(addingP) saveNew();
   const btn=$('btnSave');btn.disabled=true;btn.textContent='저장 중...';
   try{
     const cfg=getCfg();
@@ -479,7 +482,7 @@ async function init(){
 }
 
 /* ── PASSWORD ── */
-const PW='2260'; // ← 비밀번호 변경 시 이 부분만 수정
+const PW='rewindlab2026'; // ← 비밀번호 변경 시 이 부분만 수정
 function tryLogin(){
   if($('pwInput').value===PW){
     sessionStorage.setItem('rl_auth','ok');
