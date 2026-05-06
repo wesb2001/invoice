@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-06T04:44:21.336Z",
+  "updatedAt": "2026-05-06T04:47:04.492Z",
   "customers": [
     {
       "id": "x0001",
@@ -1546,6 +1546,14 @@
           "id": "moti3yo3xqj9e",
           "name": "릴릴 나인세컨드 선크림",
           "spec": "50ml",
+          "unit": "ea",
+          "price": 8800,
+          "note": ""
+        },
+        {
+          "id": "motkscpdo9iua",
+          "name": "릴릴 그린애플 선스틱",
+          "spec": "25g",
           "unit": "ea",
           "price": 8800,
           "note": ""
