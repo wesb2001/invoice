@@ -128,6 +128,7 @@ header h1{color:#fff;font-size:16px;font-weight:600;}
   <h1>📄 거래명세서 생성기</h1>
   <div style="display:flex;align-items:center;gap:10px;">
     <span style="color:var(--accent);font-size:11px;">주식회사 리와인드랩</span>
+    <a href="transactions.html" class="hlink">📊 거래내역</a>
     <a href="pricelist.html" class="hlink">📋 가격표 관리</a>
   </div>
 </header>
@@ -223,6 +224,7 @@ header h1{color:#fff;font-size:16px;font-weight:600;}
 
     <div class="form-footer">
       <button class="btn-primary" id="btnExcel" onclick="dlExcel()">⬇ Excel 다운로드</button>
+      <button class="btn-primary" style="background:#1d7a4f;flex:2;" onclick="saveAndPrint()">💾 저장 후 발행</button>
       <button class="btn-secondary" id="btnPrint" onclick="doPrint()">🖨 인쇄 / PDF</button>
     </div>
   </div><!-- /form-panel -->
@@ -700,6 +702,63 @@ function init() {
 
   // 가격표 불러오기
   loadPricelist();
+}
+
+/* ── SAVE TRANSACTION ── */
+async function saveAndPrint(){
+  var items=getItems();
+  if(!items.length){alert('품목을 입력하세요.');return;}
+  var rcvName=gv('rcvName');
+  if(!rcvName){alert('거래처명을 입력하세요.');return;}
+
+  var cfg=JSON.parse(localStorage.getItem('rl_gh_cfg2')||'{}');
+  if(!cfg.token){
+    if(!confirm('GitHub 토큰이 없어 거래 저장이 불가합니다.\n인쇄만 진행할까요?'))return;
+    doPrint();return;
+  }
+
+  var txData={
+    id:'tx'+Date.now().toString(36),
+    date:gv('issueDate'),
+    customer:rcvName,
+    docNo:gv('docNo'),
+    items:items.map(function(i){return i.name+(i.qty?'×'+i.qty:'');}).join(', '),
+    supplyAmount:items.reduce(function(s,i){return s+i.sup;},0),
+    taxAmount:items.reduce(function(s,i){return s+i.tax;},0),
+    totalAmount:items.reduce(function(s,i){return s+i.total;},0),
+    note:gv('note')
+  };
+
+  var btn=document.querySelector('.btn-primary[style*="1d7a4f"]');
+  if(btn){btn.disabled=true;btn.textContent='저장 중...';}
+
+  try{
+    var repo=cfg.repo||'wesb2001/invoice';
+    var txApiUrl='https://api.github.com/repos/'+repo+'/contents/transactions.json';
+    var hdrs={'Authorization':'Bearer '+cfg.token,'Content-Type':'application/json','Accept':'application/vnd.github+json'};
+
+    var txD={transactions:[]};var sha=null;
+    var mr=await fetch(txApiUrl,{headers:hdrs});
+    if(mr.ok){
+      var meta=await mr.json();sha=meta.sha;
+      var raw=atob(meta.content.replace(/\n/g,''));
+      txD=JSON.parse(decodeURIComponent(escape(raw)));
+      if(!Array.isArray(txD.transactions))txD.transactions=[];
+    }
+    txD.transactions.push(txData);
+    txD.updatedAt=new Date().toISOString();
+    var content=btoa(unescape(encodeURIComponent(JSON.stringify(txD,null,2))));
+    var body={message:'거래 저장 ['+txData.date+' '+txData.customer+']',content};
+    if(sha)body.sha=sha;
+    var resp=await fetch(txApiUrl,{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
+    if(!resp.ok){var e=await resp.json();throw new Error(e.message||'저장 실패');}
+    if(btn){btn.textContent='✓ 저장됨';setTimeout(function(){btn.disabled=false;btn.textContent='💾 저장 후 발행';},2000);}
+    doPrint();
+  }catch(e){
+    alert('거래 저장 실패: '+e.message+'\n인쇄는 계속 진행됩니다.');
+    if(btn){btn.disabled=false;btn.textContent='💾 저장 후 발행';}
+    doPrint();
+  }
 }
 
 window.onload = init;

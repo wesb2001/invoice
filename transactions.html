@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>거래 내역 | 리와인드랩</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#1a2f5a;--navy2:#243870;--accent:#c8a96e;--bg:#f4f4f0;--white:#fff;--border:#d8d8d4;--text:#1e1e1e;--muted:#888;--surface:#f9f9f7;--green:#1d7a4f;--red:#c0392b;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+header{background:var(--navy);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:50px;flex-shrink:0;}
+header h1{color:#fff;font-size:15px;font-weight:600;}
+.hbadge{color:var(--accent);font-size:11px;margin-left:7px;}
+.hlinks{display:flex;gap:6px;align-items:center;}
+.hlink{color:rgba(255,255,255,.75);font-size:12px;text-decoration:none;padding:5px 11px;border:1px solid rgba(255,255,255,.3);border-radius:5px;transition:all .15s;}
+.hlink:hover{background:rgba(255,255,255,.12);color:#fff;}
+
+/* PASSWORD */
+#pwScreen{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.pw-box{background:#fff;border-radius:14px;padding:38px 42px;width:320px;text-align:center;}
+.pw-icon{font-size:36px;margin-bottom:12px;}
+.pw-title{font-size:17px;font-weight:600;color:var(--navy);margin-bottom:4px;}
+.pw-sub{font-size:12px;color:var(--muted);margin-bottom:24px;}
+.pw-input{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:7px;font-family:'Noto Sans KR',sans-serif;font-size:14px;margin-bottom:10px;outline:none;}
+.pw-input:focus{border-color:var(--navy);}
+.pw-err{display:none;color:var(--red);font-size:12px;margin-bottom:8px;}
+.pw-btn{width:100%;padding:11px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+.pw-btn:hover{background:var(--navy2);}
+.pw-hint{margin-top:18px;font-size:11px;color:#bbb;}
+
+/* STATS */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:14px 20px;background:var(--white);border-bottom:1px solid var(--border);}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;}
+.stat .s-lbl{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.stat .s-val{font-size:18px;font-weight:600;color:var(--navy);}
+.stat .s-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--white);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.toolbar input[type=text]{padding:7px 11px;border:1px solid var(--border);border-radius:5px;font-family:'Noto Sans KR',sans-serif;font-size:12px;width:200px;}
+.toolbar input[type=text]:focus{outline:none;border-color:var(--navy);}
+.tb-label{font-size:12px;color:var(--muted);}
+.year-btns{display:flex;gap:4px;flex-wrap:wrap;}
+.year-btn{padding:5px 10px;border:1px solid var(--border);border-radius:4px;background:#fff;font-family:'Noto Sans KR',sans-serif;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;}
+.year-btn:hover{border-color:var(--navy);color:var(--navy);}
+.year-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.tb-right{margin-left:auto;display:flex;gap:6px;}
+.btn-new{padding:7px 14px;background:var(--navy);color:#fff;border:none;border-radius:5px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+.btn-new:hover{background:var(--navy2);}
+
+/* STATUS */
+.st-bar{display:flex;align-items:center;gap:8px;padding:6px 20px;background:#f0f2f9;border-bottom:1px solid #d0d5e8;font-size:11px;}
+.dot{width:7px;height:7px;border-radius:50%;}
+.dot-g{background:var(--green);}.dot-r{background:var(--red);}.dot-o{background:#d97706;}.dot-x{background:#bbb;}
+
+/* TABLE */
+.table-wrap{flex:1;overflow:auto;padding:16px 20px;}
+.tx-table{width:100%;border-collapse:collapse;font-size:13px;min-width:900px;}
+.tx-table th{background:var(--navy);color:#fff;padding:9px 10px;text-align:left;font-weight:500;font-size:11px;white-space:nowrap;position:sticky;top:0;z-index:10;}
+.tx-table th.r{text-align:right;}
+.tx-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.tx-table td.r{text-align:right;font-variant-numeric:tabular-nums;}
+.tx-table tr:hover td{background:#f5f5f2;}
+.tx-table tr:nth-child(even) td{background:#fafaf8;}
+.tx-table tr:nth-child(even):hover td{background:#f5f5f2;}
+.badge-year{display:inline-block;background:#eef1f9;color:var(--navy);padding:1px 7px;border-radius:3px;font-size:10px;font-weight:500;margin-right:4px;}
+.no-data{text-align:center;padding:60px;color:var(--muted);font-size:14px;}
+
+/* RESULT COUNT */
+.result-info{padding:8px 20px;font-size:12px;color:var(--muted);background:var(--surface);border-bottom:1px solid var(--border);}
+.result-info strong{color:var(--text);}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 18px;border-radius:6px;font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;color:#fff;}
+.toast.show{opacity:1;}
+.tok{background:var(--green);}
+.ter{background:var(--red);}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD -->
+<div id="pwScreen">
+  <div class="pw-box">
+    <div class="pw-icon">🔐</div>
+    <div class="pw-title">리와인드랩</div>
+    <div class="pw-sub">거래 내역 조회</div>
+    <input type="password" id="pwInput" class="pw-input" placeholder="비밀번호를 입력하세요"
+      onkeydown="if(event.key==='Enter')tryLogin()"
+      onfocus="this.style.borderColor='#1a2f5a'" onblur="this.style.borderColor='#d8d8d4'">
+    <div id="pwErr" class="pw-err">비밀번호가 올바르지 않습니다.</div>
+    <button class="pw-btn" onclick="tryLogin()">로그인</button>
+    <div class="pw-hint">주식회사 리와인드랩 내부용</div>
+  </div>
+</div>
+
+<header>
+  <h1>📊 거래 내역<span class="hbadge">| 주식회사 리와인드랩</span></h1>
+  <div class="hlinks">
+    <a href="index.html" class="hlink">📄 거래명세서</a>
+    <a href="pricelist.html" class="hlink">📋 가격표 관리</a>
+  </div>
+</header>
+
+<div class="st-bar">
+  <div class="dot dot-x" id="sdot"></div>
+  <div id="stxt" style="color:var(--muted);">로딩 중...</div>
+</div>
+
+<div class="stats-bar" id="statsBar">
+  <div class="stat"><div class="s-lbl">전체 거래 건수</div><div class="s-val" id="statCount">—</div></div>
+  <div class="stat"><div class="s-lbl">총 합계금액</div><div class="s-val" id="statTotal">—</div></div>
+  <div class="stat"><div class="s-lbl">총 공급가액</div><div class="s-val" id="statSupply">—</div></div>
+  <div class="stat"><div class="s-lbl">총 세액</div><div class="s-val" id="statTax">—</div></div>
+</div>
+
+<div class="toolbar">
+  <span class="tb-label">검색</span>
+  <input type="text" id="srch" placeholder="거래처, 품목 검색..." oninput="render()">
+  <span class="tb-label" style="margin-left:8px;">연도</span>
+  <div class="year-btns" id="yearBtns"></div>
+  <div class="tb-right">
+    <a href="index.html" class="btn-new">+ 새 거래명세서</a>
+  </div>
+</div>
+
+<div class="result-info" id="resultInfo"></div>
+
+<div class="table-wrap">
+  <table class="tx-table">
+    <thead>
+      <tr>
+        <th style="width:36px">No.</th>
+        <th style="width:96px">거래일자</th>
+        <th style="width:160px">업체명</th>
+        <th>품목내역</th>
+        <th class="r" style="width:90px">공급가액</th>
+        <th class="r" style="width:80px">세액</th>
+        <th class="r" style="width:100px">합계금액</th>
+        <th style="width:130px">비고</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PW='rewindlab2026';
+const CFG_KEY='rl_gh_cfg2';
+let D={transactions:[]};
+let filterYear='all';
+const $=id=>document.getElementById(id);
+const fmt=n=>n?(Math.round(n)||0).toLocaleString('ko-KR'):'—';
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* ── PASSWORD ── */
+function tryLogin(){
+  if($('pwInput').value===PW){
+    sessionStorage.setItem('rl_auth','ok');
+    $('pwScreen').style.display='none';
+    loadData();
+  } else {
+    $('pwErr').style.display='block';
+    $('pwInput').value='';$('pwInput').focus();
+    setTimeout(()=>$('pwErr').style.display='none',2500);
+  }
+}
+if(sessionStorage.getItem('rl_auth')==='ok'){$('pwScreen').style.display='none';loadData();}
+
+/* ── CONFIG ── */
+function getCfg(){try{return JSON.parse(localStorage.getItem(CFG_KEY))||{};}catch(e){return{};}}
+function rawUrl(){const c=getCfg();const repo=c.repo||'wesb2001/invoice';return `https://raw.githubusercontent.com/${repo}/main/transactions.json`;}
+function apiUrl(){const c=getCfg();const repo=c.repo||'wesb2001/invoice';return `https://api.github.com/repos/${repo}/contents/transactions.json`;}
+
+/* ── STATUS ── */
+function setSt(type,html){
+  const d=$('sdot');d.className='dot';
+  d.classList.add(type==='ok'?'dot-g':type==='err'?'dot-r':type==='load'?'dot-o':'dot-x');
+  $('stxt').innerHTML=html;
+}
+function toast(msg,type){
+  const t=$('toast');t.textContent=msg;t.className='toast '+(type==='ok'?'tok':'ter')+' show';
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+/* ── LOAD ── */
+async function loadData(){
+  setSt('load','GitHub에서 불러오는 중...');
+  try{
+    const cfg=getCfg();
+    let data;
+    if(cfg.token){
+      const r=await fetch(apiUrl(),{headers:{'Authorization':'Bearer '+cfg.token,'Accept':'application/vnd.github+json'}});
+      if(r.status===404){D={transactions:[]};setSt('ok','연결됨 · 거래내역 없음');renderAll();return;}
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const meta=await r.json();
+      const raw=atob(meta.content.replace(/\n/g,''));
+      data=JSON.parse(decodeURIComponent(escape(raw)));
+    } else {
+      const r=await fetch(rawUrl()+'?t='+Date.now());
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      data=await r.json();
+    }
+    D=data;
+    if(!Array.isArray(D.transactions))D.transactions=[];
+    const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+    setSt('ok',`연결됨 &nbsp;·&nbsp; ${t} 기준 &nbsp;·&nbsp; 총 <strong>${D.transactions.length}</strong>건`);
+    renderAll();
+  }catch(e){setSt('err','불러오기 실패: '+e.message);}
+}
+
+/* ── YEAR BUTTONS ── */
+function buildYearBtns(){
+  const years=['all',...new Set(D.transactions.map(t=>t.date?.slice(0,4)).filter(Boolean)).values()].sort((a,b)=>b>a?1:b<a?-1:0);
+  const container=$('yearBtns');
+  container.innerHTML=years.map(y=>`<button class="year-btn ${y===filterYear?'active':''}" onclick="setYear('${y}')">${y==='all'?'전체':y}</button>`).join('');
+}
+function setYear(y){filterYear=y;buildYearBtns();render();}
+
+/* ── STATS ── */
+function updateStats(list){
+  $('statCount').textContent=list.length+'건';
+  $('statTotal').textContent='₩'+fmt(list.reduce((s,t)=>s+t.totalAmount,0));
+  $('statSupply').textContent='₩'+fmt(list.reduce((s,t)=>s+t.supplyAmount,0));
+  $('statTax').textContent='₩'+fmt(list.reduce((s,t)=>s+t.taxAmount,0));
+}
+
+/* ── RENDER ── */
+function renderAll(){buildYearBtns();render();}
+
+function render(){
+  const q=($('srch').value||'').toLowerCase();
+  let list=D.transactions.filter(t=>{
+    if(filterYear!=='all'&&!t.date?.startsWith(filterYear))return false;
+    if(q&&!t.customer?.toLowerCase().includes(q)&&!t.items?.toLowerCase().includes(q)&&!t.note?.toLowerCase().includes(q))return false;
+    return true;
+  }).sort((a,b)=>b.date>a.date?1:b.date<a.date?-1:0);
+
+  updateStats(list);
+  $('resultInfo').innerHTML=`<strong>${list.length}건</strong> 표시 중 (전체 ${D.transactions.length}건)`;
+
+  const tb=$('tbody');
+  if(!list.length){
+    tb.innerHTML='<tr><td colspan="8" class="no-data">해당하는 거래 내역이 없습니다.</td></tr>';
+    return;
+  }
+
+  tb.innerHTML=list.map((t,i)=>`<tr>
+    <td style="color:#aaa;font-size:11px;text-align:center;">${list.length-i}</td>
+    <td style="white-space:nowrap;font-size:12px;">${esc(t.date||'—')}</td>
+    <td style="font-weight:500;">${esc(t.customer||'—')}</td>
+    <td style="font-size:12px;color:#444;max-width:300px;">${esc(t.items||'—')}</td>
+    <td class="r">${t.supplyAmount?'₩'+fmt(t.supplyAmount):'—'}</td>
+    <td class="r">${t.taxAmount?'₩'+fmt(t.taxAmount):'—'}</td>
+    <td class="r" style="font-weight:500;">${t.totalAmount?'₩'+fmt(t.totalAmount):'—'}</td>
+    <td style="font-size:11px;color:var(--muted);">${esc(t.note||'')}</td>
+  </tr>`).join('');
+}
+
+/* ── SAVE NEW TRANSACTION (called from index.html via postMessage) ── */
+async function saveTransaction(txData){
+  const cfg=getCfg();
+  if(!cfg.token){console.warn('토큰 없음');return;}
+  const hdrs={'Authorization':'Bearer '+cfg.token,'Content-Type':'application/json','Accept':'application/vnd.github+json'};
+  let sha=null;
+  try{const m=await fetch(apiUrl(),{headers:hdrs});if(m.ok){const j=await m.json();sha=j.sha;}}catch(e){}
+  D.transactions.push(txData);
+  D.updatedAt=new Date().toISOString();
+  const content=btoa(unescape(encodeURIComponent(JSON.stringify(D,null,2))));
+  const body={message:`거래 저장 [${txData.date} ${txData.customer}]`,content};
+  if(sha)body.sha=sha;
+  await fetch(apiUrl(),{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
+}
+</script>
+</body>
+</html>
