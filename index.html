@@ -149,6 +149,7 @@ header h1{color:#fff;font-size:16px;font-weight:600;}
               <option value="taxable">과세 (10%)</option>
               <option value="exempt">면세</option>
               <option value="zero">영세율</option>
+              <option value="inclusive">부가세 포함가</option>
             </select>
           </div>
         </div>
@@ -199,8 +200,8 @@ header h1{color:#fff;font-size:16px;font-weight:600;}
           <span></span><span>품명</span>
           <span style="text-align:center">규격/단위</span>
           <span style="text-align:right">수량</span>
-          <span style="text-align:right">단가</span>
-          <span style="text-align:right">공급가액</span>
+          <span style="text-align:right" id="hdrPrice">단가</span>
+          <span style="text-align:right" id="hdrAuto">공급가액</span>
           <span></span>
         </div>
         <div id="itemsBody"></div>
@@ -467,10 +468,19 @@ function getItems() {
   return rows.map(function(r, i) {
     var name = gv('n' + r.id), unit = gv('u' + r.id);
     var qty = gn('q' + r.id), price = gn('p' + r.id);
-    var sup = qty * price;
-    var tax = tt === 'taxable' ? Math.round(sup * 0.1) : 0;
-    return { no: i+1, name: name, unit: unit, qty: qty, price: price, sup: sup, tax: tax, total: sup + tax };
-  }).filter(function(i) { return i.name || i.sup > 0; });
+    var sup, tax, total;
+    if (tt === 'inclusive') {
+      // price = VAT포함단가, total = qty>0 ? qty*price : price
+      total = qty > 0 ? qty * price : price;
+      sup = Math.round(total / 1.1);
+      tax = total - sup;
+    } else {
+      sup = qty * price;
+      tax = tt === 'taxable' ? Math.round(sup * 0.1) : 0;
+      total = sup + tax;
+    }
+    return { no: i+1, name: name, unit: unit, qty: qty, price: price, sup: sup, tax: tax, total: total };
+  }).filter(function(i) { return i.name || i.total > 0; });
 }
 
 /* ════════════════════════════
@@ -479,6 +489,7 @@ function getItems() {
 function upd() {
   var items = getItems();
   var tt = gv('taxType');
+  var isInclusive = tt === 'inclusive';
   var tSup = items.reduce(function(a, i) { return a + i.sup; }, 0);
   var tTax = items.reduce(function(a, i) { return a + i.tax; }, 0);
   var grand = tSup + tTax;
@@ -486,12 +497,29 @@ function upd() {
   $('tSup').textContent = '₩' + fmt(tSup);
   $('tTax').textContent = '₩' + fmt(tTax);
   $('tGrand').textContent = '₩' + fmt(grand);
-  $('taxLbl').textContent = tt === 'taxable' ? '세액 (VAT 10%)' : tt === 'exempt' ? '세액 (면세)' : '세액 (영세율)';
+
+  // 헤더 업데이트
+  var hdrPrice = $('hdrPrice');
+  var hdrAuto = $('hdrAuto');
+  if (hdrPrice) hdrPrice.textContent = isInclusive ? 'VAT포함단가' : '단가';
+  if (hdrAuto) hdrAuto.textContent = isInclusive ? '공급가액(역산)' : '공급가액';
+
+  var taxLblMap = {taxable:'세액 (VAT 10%)', exempt:'세액 (면세)', zero:'세액 (영세율)', inclusive:'세액 (역산)'};
+  $('taxLbl').textContent = taxLblMap[tt] || '세액';
 
   rows.forEach(function(r) {
-    var sup = gn('q' + r.id) * gn('p' + r.id);
+    var qty = gn('q' + r.id);
+    var price = gn('p' + r.id);
     var el = $('s' + r.id);
-    if (el) el.textContent = sup > 0 ? fmt(sup) + '원' : '—';
+    if (!el) return;
+    if (isInclusive) {
+      var total = qty > 0 ? qty * price : price;
+      var sup = Math.round(total / 1.1);
+      el.textContent = sup > 0 ? fmt(sup) + '원' : '—';
+    } else {
+      var sup2 = qty * price;
+      el.textContent = sup2 > 0 ? fmt(sup2) + '원' : '—';
+    }
   });
 
   renderDoc(items, tSup, tTax, grand);
@@ -502,9 +530,11 @@ function upd() {
 ════════════════════════════ */
 function makeDocHTML(items, tSup, tTax, grand) {
   var tt = gv('taxType');
-  var taxLbl = tt === 'taxable' ? '과세 (VAT 10%)' : tt === 'exempt' ? '면세' : '영세율';
+  var isInclusive = tt === 'inclusive';
+  var taxLbl = tt === 'taxable' ? '과세 (VAT 10%)' : tt === 'exempt' ? '면세' : tt === 'inclusive' ? '부가세 포함가 (역산)' : '영세율';
   var rcvContact = gv('rcvContact'), supContact = gv('supContact');
   var empty = Math.max(0, 8 - items.length);
+  var priceLbl = isInclusive ? 'VAT포함단가' : '단가';
 
   function pr(lbl, val) {
     return '<div class="party-row"><span class="party-lbl">' + lbl + '</span><span class="party-val">' + esc(val) + '</span></div>';
@@ -515,8 +545,8 @@ function makeDocHTML(items, tSup, tTax, grand) {
       '<td class="c">' + i.no + '</td>' +
       '<td class="l">' + esc(i.name) + '</td>' +
       '<td class="c">' + esc(i.unit || '') + '</td>' +
-      '<td>' + fmt(i.qty) + '</td>' +
-      '<td>' + fmt(i.price) + '</td>' +
+      '<td>' + (i.qty > 0 ? fmt(i.qty) : '&nbsp;') + '</td>' +
+      '<td>' + (i.price > 0 ? fmt(i.price) : '&nbsp;') + '</td>' +
       '<td>' + fmt(i.sup) + '</td>' +
       '<td>' + fmt(i.tax) + '</td>' +
       '<td><strong>' + fmt(i.total) + '</strong></td>' +
@@ -561,7 +591,7 @@ function makeDocHTML(items, tSup, tTax, grand) {
       '<colgroup><col style="width:28px"><col><col style="width:58px"><col style="width:48px"><col style="width:80px"><col style="width:88px"><col style="width:72px"><col style="width:88px"></colgroup>' +
       '<thead><tr>' +
         '<th>No.</th><th class="l">품명</th><th>규격/단위</th>' +
-        '<th class="r">수량</th><th class="r">단가</th>' +
+        '<th class="r">수량</th><th class="r">' + priceLbl + '</th>' +
         '<th class="r">공급가액</th><th class="r">세액</th><th class="r">합계</th>' +
       '</tr></thead>' +
       '<tbody>' + irows + blanks +
