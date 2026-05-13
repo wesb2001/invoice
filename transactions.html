@@ -72,7 +72,23 @@ header h1{color:#fff;font-size:15px;font-weight:600;}
 .result-info{padding:8px 20px;font-size:12px;color:var(--muted);background:var(--surface);border-bottom:1px solid var(--border);}
 .result-info strong{color:var(--text);}
 
-/* TOAST */
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.modal{background:#fff;border-radius:12px;padding:28px 32px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.modal h3{font-size:16px;font-weight:600;color:var(--navy);margin-bottom:20px;}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.modal-grid .full{grid-column:1/-1;}
+.mf label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:500;}
+.mf input{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:5px;font-family:'Noto Sans KR',sans-serif;font-size:13px;}
+.mf input:focus{outline:none;border-color:var(--navy);}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:4px;}
+.btn-modal-save{padding:9px 20px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;}
+.btn-modal-cancel{padding:9px 16px;background:#eee;color:#555;border:none;border-radius:6px;font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;}
+/* EDIT/DELETE BUTTONS */
+.btn-ic{background:none;border:none;cursor:pointer;padding:3px 6px;border-radius:3px;font-size:13px;transition:background .12s;}
+.btn-ic:hover{background:#eee;}
+.btn-ic-del{color:var(--red);}
+.btn-ic-edit{color:#555;}
 .toast{position:fixed;bottom:20px;right:20px;padding:10px 18px;border-radius:6px;font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;color:#fff;}
 .toast.show{opacity:1;}
 .tok{background:var(--green);}
@@ -140,6 +156,7 @@ header h1{color:#fff;font-size:15px;font-weight:600;}
         <th class="r" style="width:80px">세액</th>
         <th class="r" style="width:100px">합계금액</th>
         <th style="width:130px">비고</th>
+        <th class="c" style="width:70px">관리</th>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
@@ -147,6 +164,27 @@ header h1{color:#fff;font-size:15px;font-weight:600;}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" class="modal-bg" style="display:none;" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3>✏ 거래내역 수정</h3>
+    <div class="modal-grid">
+      <div class="mf"><label>거래일자</label><input type="date" id="m_date"></div>
+      <div class="mf"><label>업체명</label><input type="text" id="m_customer" placeholder="업체명"></div>
+      <div class="mf full"><label>품목내역</label><input type="text" id="m_items" placeholder="품목내역"></div>
+      <div class="mf"><label>공급가액</label><input type="number" id="m_supply" placeholder="0"></div>
+      <div class="mf"><label>세액</label><input type="number" id="m_tax" placeholder="0"></div>
+      <div class="mf"><label>합계금액</label><input type="number" id="m_total" placeholder="0"></div>
+      <div class="mf"><label>문서번호</label><input type="text" id="m_docno" placeholder="RL-2026-001"></div>
+      <div class="mf"><label>비고</label><input type="text" id="m_note" placeholder="비고"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-modal-save" onclick="saveEdit()">💾 저장</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const PW='rl2026';
@@ -258,7 +296,76 @@ function render(){
     <td class="r">${t.taxAmount?'₩'+fmt(t.taxAmount):'—'}</td>
     <td class="r" style="font-weight:500;">${t.totalAmount?'₩'+fmt(t.totalAmount):'—'}</td>
     <td style="font-size:11px;color:var(--muted);">${esc(t.note||'')}</td>
+    <td style="text-align:center;white-space:nowrap;">
+      <button class="btn-ic btn-ic-edit" onclick="editTx('${t.id}')" title="수정">✏</button>
+      <button class="btn-ic btn-ic-del" onclick="delTx('${t.id}')" title="삭제">✕</button>
+    </td>
   </tr>`).join('');
+}
+
+/* ── EDIT ── */
+let editingId=null;
+function editTx(id){
+  const t=D.transactions.find(x=>x.id===id);
+  if(!t)return;
+  editingId=id;
+  $('m_date').value=t.date||'';
+  $('m_customer').value=t.customer||'';
+  $('m_items').value=t.items||'';
+  $('m_supply').value=t.supplyAmount||0;
+  $('m_tax').value=t.taxAmount||0;
+  $('m_total').value=t.totalAmount||0;
+  $('m_docno').value=t.docNo||'';
+  $('m_note').value=t.note||'';
+  $('editModal').style.display='flex';
+}
+function closeModal(){$('editModal').style.display='none';editingId=null;}
+
+async function saveEdit(){
+  const t=D.transactions.find(x=>x.id===editingId);
+  if(!t)return;
+  t.date=$('m_date').value;
+  t.customer=$('m_customer').value.trim();
+  t.items=$('m_items').value.trim();
+  t.supplyAmount=parseInt($('m_supply').value)||0;
+  t.taxAmount=parseInt($('m_tax').value)||0;
+  t.totalAmount=parseInt($('m_total').value)||0;
+  t.docNo=$('m_docno').value.trim();
+  t.note=$('m_note').value.trim();
+  closeModal();
+  await pushToGitHub('거래내역 수정 ['+t.date+' '+t.customer+']');
+  renderAll();
+}
+
+/* ── DELETE ── */
+async function delTx(id){
+  const t=D.transactions.find(x=>x.id===id);
+  if(!confirm(`"${t?.customer} (${t?.date})" 거래내역을 삭제하시겠습니까?`))return;
+  D.transactions=D.transactions.filter(x=>x.id!==id);
+  await pushToGitHub('거래내역 삭제 ['+t.date+' '+t.customer+']');
+  renderAll();
+  toast('삭제됨','ok');
+}
+
+/* ── PUSH TO GITHUB ── */
+async function pushToGitHub(msg){
+  const cfg=getCfg();
+  if(!cfg.token){toast('GitHub 토큰이 없어 저장되지 않았습니다.','err');return;}
+  try{
+    const hdrs={'Authorization':'Bearer '+cfg.token,'Content-Type':'application/json','Accept':'application/vnd.github+json'};
+    let sha=null;
+    const m=await fetch(apiUrl(),{headers:hdrs});
+    if(m.ok){const j=await m.json();sha=j.sha;}
+    D.updatedAt=new Date().toISOString();
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(D,null,2))));
+    const body={message:msg||'거래내역 업데이트',content};
+    if(sha)body.sha=sha;
+    const r=await fetch(apiUrl(),{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
+    if(!r.ok)throw new Error('저장 실패');
+    const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+    setSt('ok',`저장 완료 · ${t} · 총 <strong>${D.transactions.length}</strong>건`);
+    toast('GitHub에 저장됨','ok');
+  }catch(e){toast('저장 실패: '+e.message,'err');}
 }
 
 /* ── SAVE NEW TRANSACTION (called from index.html via postMessage) ── */
