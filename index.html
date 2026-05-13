@@ -311,21 +311,40 @@ function loadPricelist() {
     })
     .catch(function(e) { renderPlBar('error', e.message); });
   } else {
-    // Raw URL fallback
-    fetch('https://raw.githubusercontent.com/' + repo + '/main/' + file + '?t=' + Date.now())
-    .then(function(r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    })
-    .then(function(data) {
-      plData = data;
-      if (!Array.isArray(plData.customers) || !plData.customers.length) {
-        renderPlBar('no-data');
-      } else {
-        renderPlBar('ready');
-      }
-    })
-    .catch(function(e) { renderPlBar('error', e.message); });
+    // Raw URL fallback - 여러 CDN을 순차 시도
+    var urls = [
+      'https://cdn.jsdelivr.net/gh/' + repo + '@main/' + file + '?t=' + Date.now(),
+      'https://raw.githubusercontent.com/' + repo + '/main/' + file + '?t=' + Date.now(),
+      'https://api.github.com/repos/' + repo + '/contents/' + file
+    ];
+    var tryNext = function(i) {
+      if (i >= urls.length) { renderPlBar('error', '모든 경로 실패'); return; }
+      fetch(urls[i])
+        .then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function(data) {
+          // GitHub Contents API는 base64 content를 반환
+          if (data.content && data.encoding === 'base64') {
+            var raw = atob(data.content.replace(/\n/g, ''));
+            data = JSON.parse(decodeURIComponent(Array.prototype.map.call(raw, function(c) {
+              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join('')));
+          }
+          plData = data;
+          if (!Array.isArray(plData.customers) || !plData.customers.length) {
+            renderPlBar('no-data');
+          } else {
+            renderPlBar('ready');
+          }
+        })
+        .catch(function(e) {
+          console.warn('Fetch failed for ' + urls[i] + ': ' + e.message);
+          tryNext(i + 1);
+        });
+    };
+    tryNext(0);
   }
 }
 

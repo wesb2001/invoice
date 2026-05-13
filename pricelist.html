@@ -270,11 +270,30 @@ async function loadData(){
       const raw=atob(meta.content.replace(/\n/g,''));
       json=JSON.parse(decodeURIComponent(escape(raw)));
     } else {
-      // 토큰 없으면 raw URL fallback
-      const r=await fetch(rawUrl()+'?t='+Date.now());
-      if(r.status===404){D={customers:[]};setSt('ok','연결됨 · 데이터 없음');setDirty(false);renderList();renderContent();return;}
-      if(!r.ok){throw new Error('HTTP '+r.status);}
-      json=await r.json();
+      // 토큰 없으면 여러 CDN 순차 시도
+      const repo=cfg.repo||'wesb2001/invoice';
+      const file=cfg.file||'pricelist.json';
+      const urls=[
+        `https://cdn.jsdelivr.net/gh/${repo}@main/${file}?t=${Date.now()}`,
+        `https://raw.githubusercontent.com/${repo}/main/${file}?t=${Date.now()}`,
+        `https://api.github.com/repos/${repo}/contents/${file}`
+      ];
+      let loaded=false;
+      for(let i=0;i<urls.length;i++){
+        try{
+          const r=await fetch(urls[i]);
+          if(r.status===404){D={customers:[]};setSt('ok','연결됨 · 데이터 없음');setDirty(false);renderList();renderContent();return;}
+          if(!r.ok)throw new Error('HTTP '+r.status);
+          let data=await r.json();
+          // GitHub Contents API는 base64 content를 반환
+          if(data.content&&data.encoding==='base64'){
+            const raw=atob(data.content.replace(/\n/g,''));
+            data=JSON.parse(decodeURIComponent(escape(raw)));
+          }
+          json=data;loaded=true;break;
+        }catch(e){console.warn('Fetch failed for '+urls[i]+': '+e.message);}
+      }
+      if(!loaded)throw new Error('모든 경로 실패');
     }
     D=json;
     if(!Array.isArray(D.customers))D.customers=[];

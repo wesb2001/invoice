@@ -239,9 +239,28 @@ async function loadData(){
       const raw=atob(meta.content.replace(/\n/g,''));
       data=JSON.parse(decodeURIComponent(escape(raw)));
     } else {
-      const r=await fetch(rawUrl()+'?t='+Date.now());
-      if(!r.ok)throw new Error('HTTP '+r.status);
-      data=await r.json();
+      // 토큰 없으면 여러 CDN 순차 시도
+      const repo=cfg.repo||'wesb2001/invoice';
+      const urls=[
+        `https://cdn.jsdelivr.net/gh/${repo}@main/transactions.json?t=${Date.now()}`,
+        `https://raw.githubusercontent.com/${repo}/main/transactions.json?t=${Date.now()}`,
+        `https://api.github.com/repos/${repo}/contents/transactions.json`
+      ];
+      let loaded=false;
+      for(let i=0;i<urls.length;i++){
+        try{
+          const r=await fetch(urls[i]);
+          if(r.status===404){D={transactions:[]};setSt('ok','연결됨 · 거래내역 없음');renderAll();return;}
+          if(!r.ok)throw new Error('HTTP '+r.status);
+          let d=await r.json();
+          if(d.content&&d.encoding==='base64'){
+            const raw=atob(d.content.replace(/\n/g,''));
+            d=JSON.parse(decodeURIComponent(escape(raw)));
+          }
+          data=d;loaded=true;break;
+        }catch(e){console.warn('Fetch failed for '+urls[i]+': '+e.message);}
+      }
+      if(!loaded)throw new Error('모든 경로 실패');
     }
     D=data;
     if(!Array.isArray(D.transactions))D.transactions=[];
