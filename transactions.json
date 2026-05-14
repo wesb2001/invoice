@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-14T02:14:01.989Z",
+  "updatedAt": "2026-05-14T06:24:42.434Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1089,6 +1089,17 @@
       "supplyAmount": 270000,
       "taxAmount": 27000,
       "totalAmount": 297000,
+      "note": ""
+    },
+    {
+      "id": "txmp53ssiu",
+      "date": "2026-05-14",
+      "customer": "비다벨로",
+      "docNo": "",
+      "items": "이지버블 호호바 클렌저×5, 릴릴웨이브 진동클렌저(핑크)×1, 릴릴웨이브 진동클렌저(블루)×1",
+      "supplyAmount": 0,
+      "taxAmount": 0,
+      "totalAmount": 0,
       "note": ""
     }
   ]
