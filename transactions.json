@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-14T07:30:34.690Z",
+  "updatedAt": "2026-05-14T07:34:19.909Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1101,6 +1101,17 @@
       "taxAmount": 0,
       "totalAmount": 0,
       "note": "위탁판매 인수 확인용"
+    },
+    {
+      "id": "txmp56abvc",
+      "date": "2026-05-14",
+      "customer": "베스타 주식회사",
+      "docNo": "",
+      "items": "릴릴웨이브 중음파 클렌저(핑크)×1",
+      "supplyAmount": 0,
+      "taxAmount": 0,
+      "totalAmount": 0,
+      "note": "위탁판매 확인용"
     }
   ]
 }
