@@ -388,7 +388,8 @@ async function pushToGitHub(msg){
     const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
     setSt('ok',`저장 완료 · ${t} · 총 <strong>${D.transactions.length}</strong>건`);
     toast('GitHub에 저장됨','ok');
-  }catch(e){toast('저장 실패: '+e.message,'e
+  }catch(e){toast('저장 실패: '+e.message,'err');}
+}
 
 /* ── SAVE NEW TRANSACTION (called from index.html via postMessage) ── */
 async function saveTransaction(txData){
