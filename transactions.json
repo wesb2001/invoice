@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-14T07:34:19.909Z",
+  "updatedAt": "2026-05-14T08:20:38.626Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1111,7 +1111,7 @@
       "supplyAmount": 0,
       "taxAmount": 0,
       "totalAmount": 0,
-      "note": "위탁판매 확인용"
+      "note": "위탁판매 인수 확인용"
     }
   ]
 }
