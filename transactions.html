@@ -367,25 +367,28 @@ async function delTx(id){
 }
 
 /* ── PUSH TO GITHUB ── */
+const WORKER_URL='https://invoice-api.late-dew-67bf.workers.dev';
+
 async function pushToGitHub(msg){
-  const cfg=getCfg();
-  if(!cfg.token){toast('GitHub 토큰이 없어 저장되지 않았습니다.','err');return;}
   try{
-    const hdrs={'Authorization':'Bearer '+cfg.token,'Content-Type':'application/json','Accept':'application/vnd.github+json'};
-    let sha=null;
-    const m=await fetch(apiUrl(),{headers:hdrs});
-    if(m.ok){const j=await m.json();sha=j.sha;}
     D.updatedAt=new Date().toISOString();
-    const content=btoa(unescape(encodeURIComponent(JSON.stringify(D,null,2))));
-    const body={message:msg||'거래내역 업데이트',content};
-    if(sha)body.sha=sha;
-    const r=await fetch(apiUrl(),{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
-    if(!r.ok)throw new Error('저장 실패');
+    const r=await fetch(WORKER_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        password:'rl2026',
+        file:'transactions.json',
+        action:'save',
+        data:D,
+        message:msg||'거래내역 업데이트'
+      })
+    });
+    const result=await r.json();
+    if(!r.ok)throw new Error(result.error||'저장 실패');
     const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
     setSt('ok',`저장 완료 · ${t} · 총 <strong>${D.transactions.length}</strong>건`);
     toast('GitHub에 저장됨','ok');
-  }catch(e){toast('저장 실패: '+e.message,'err');}
-}
+  }catch(e){toast('저장 실패: '+e.message,'e
 
 /* ── SAVE NEW TRANSACTION (called from index.html via postMessage) ── */
 async function saveTransaction(txData){

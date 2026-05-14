@@ -754,17 +754,13 @@ function init() {
 }
 
 /* ── SAVE TRANSACTION ── */
+const WORKER_URL = 'https://invoice-api.late-dew-67bf.workers.dev';
+
 async function saveAndPrint(){
   var items=getItems();
   if(!items.length){alert('품목을 입력하세요.');return;}
   var rcvName=gv('rcvName');
   if(!rcvName){alert('거래처명을 입력하세요.');return;}
-
-  var cfg=JSON.parse(localStorage.getItem('rl_gh_cfg2')||'{}');
-  if(!cfg.token){
-    if(!confirm('GitHub 토큰이 없어 거래 저장이 불가합니다.\n인쇄만 진행할까요?'))return;
-    doPrint();return;
-  }
 
   var txData={
     id:'tx'+Date.now().toString(36),
@@ -782,25 +778,35 @@ async function saveAndPrint(){
   if(btn){btn.disabled=true;btn.textContent='저장 중...';}
 
   try{
-    var repo=cfg.repo||'wesb2001/invoice';
-    var txApiUrl='https://api.github.com/repos/'+repo+'/contents/transactions.json';
-    var hdrs={'Authorization':'Bearer '+cfg.token,'Content-Type':'application/json','Accept':'application/vnd.github+json'};
+    // 1) 기존 transactions.json 읽기
+    var readResp=await fetch(WORKER_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({password:'rl2026',file:'transactions.json',action:'read'})
+    });
+    var readData=await readResp.json();
+    if(!readResp.ok)throw new Error(readData.error||'읽기 실패');
 
-    var txD={transactions:[]};var sha=null;
-    var mr=await fetch(txApiUrl,{headers:hdrs});
-    if(mr.ok){
-      var meta=await mr.json();sha=meta.sha;
-      var raw=atob(meta.content.replace(/\n/g,''));
-      txD=JSON.parse(decodeURIComponent(escape(raw)));
-      if(!Array.isArray(txD.transactions))txD.transactions=[];
-    }
+    var txD=readData.data||{transactions:[]};
+    if(!Array.isArray(txD.transactions))txD.transactions=[];
     txD.transactions.push(txData);
     txD.updatedAt=new Date().toISOString();
-    var content=btoa(unescape(encodeURIComponent(JSON.stringify(txD,null,2))));
-    var body={message:'거래 저장 ['+txData.date+' '+txData.customer+']',content};
-    if(sha)body.sha=sha;
-    var resp=await fetch(txApiUrl,{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
-    if(!resp.ok){var e=await resp.json();throw new Error(e.message||'저장 실패');}
+
+    // 2) Worker로 저장
+    var saveResp=await fetch(WORKER_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        password:'rl2026',
+        file:'transactions.json',
+        action:'save',
+        data:txD,
+        message:'거래 저장 ['+txData.date+' '+txData.customer+']'
+      })
+    });
+    var saveData=await saveResp.json();
+    if(!saveResp.ok)throw new Error(saveData.error||'저장 실패');
+
     if(btn){btn.textContent='✓ 저장됨';setTimeout(function(){btn.disabled=false;btn.textContent='💾 저장 후 발행';},2000);}
     doPrint();
   }catch(e){

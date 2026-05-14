@@ -304,24 +304,28 @@ async function loadData(){
   finally{$('btnRef').disabled=false;}
 }
 
+const WORKER_URL='https://invoice-api.late-dew-67bf.workers.dev';
+
 async function saveToGitHub(){
-  if(!hasCfg()){alert('먼저 GitHub 설정을 완료하세요.');toggleCfg();return;}
   // 편집 중인 행 자동 저장
   if(editPid) saveProd(editPid);
   if(addingP) saveNew();
   const btn=$('btnSave');btn.disabled=true;btn.textContent='저장 중...';
   try{
-    const cfg=getCfg();
-    const hdrs={'Authorization':'Bearer '+cfg.token,'Content-Type':'application/json','Accept':'application/vnd.github+json'};
-    let sha=null;
-    const meta=await fetch(apiUrl(),{headers:hdrs});
-    if(meta.ok){const m=await meta.json();sha=m.sha;}
     D.updatedAt=new Date().toISOString();
-    const content=btoa(unescape(encodeURIComponent(JSON.stringify(D,null,2))));
-    const body={message:`가격표 업데이트 [${new Date().toLocaleString('ko-KR')}]`,content};
-    if(sha)body.sha=sha;
-    const resp=await fetch(apiUrl(),{method:'PUT',headers:hdrs,body:JSON.stringify(body)});
-    if(!resp.ok){const e=await resp.json();throw new Error(e.message||'API 오류');}
+    const resp=await fetch(WORKER_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        password:'rl2026',
+        file:'pricelist.json',
+        action:'save',
+        data:D,
+        message:`가격표 업데이트 [${new Date().toLocaleString('ko-KR')}]`
+      })
+    });
+    const result=await resp.json();
+    if(!resp.ok)throw new Error(result.error||'저장 실패');
     setDirty(false);
     const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     setSt('ok',`저장 완료 &nbsp;·&nbsp; ${t}`);
@@ -589,13 +593,10 @@ function delP(pid){
 }
 
 /* ── INIT ── */
+let readOnly=false;
 async function init(){
-  if(!hasCfg()){
-    $('obView').style.display='flex';
-    $('appView').style.display='none';
-    setSt('x','GitHub 연결 필요');
-    return;
-  }
+  // Cloudflare Worker 사용으로 모두 편집 가능
+  readOnly=false;
   $('obView').style.display='none';
   $('appView').style.display='flex';
   await loadData();
