@@ -311,10 +311,10 @@ function loadPricelist() {
     })
     .catch(function(e) { renderPlBar('error', e.message); });
   } else {
-    // Raw URL fallback - 여러 CDN을 순차 시도
+    // Raw URL fallback - raw.githubusercontent 우선 (jsdelivr는 @main ref를 최대 12h 캐싱)
     var urls = [
-      'https://cdn.jsdelivr.net/gh/' + repo + '@main/' + file + '?t=' + Date.now(),
       'https://raw.githubusercontent.com/' + repo + '/main/' + file + '?t=' + Date.now(),
+      'https://cdn.jsdelivr.net/gh/' + repo + '@main/' + file + '?t=' + Date.now(),
       'https://api.github.com/repos/' + repo + '/contents/' + file
     ];
     var tryNext = function(i) {

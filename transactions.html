@@ -239,11 +239,11 @@ async function loadData(){
       const raw=atob(meta.content.replace(/\n/g,''));
       data=JSON.parse(decodeURIComponent(escape(raw)));
     } else {
-      // 토큰 없으면 여러 CDN 순차 시도
+      // 토큰 없으면 여러 CDN 순차 시도 (raw 우선: jsdelivr는 @main을 최대 12h 캐싱)
       const repo=cfg.repo||'wesb2001/invoice';
       const urls=[
-        `https://cdn.jsdelivr.net/gh/${repo}@main/transactions.json?t=${Date.now()}`,
         `https://raw.githubusercontent.com/${repo}/main/transactions.json?t=${Date.now()}`,
+        `https://cdn.jsdelivr.net/gh/${repo}@main/transactions.json?t=${Date.now()}`,
         `https://api.github.com/repos/${repo}/contents/transactions.json`
       ];
       let loaded=false;
