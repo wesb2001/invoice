@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-14T08:20:38.626Z",
+  "updatedAt": "2026-05-21T05:50:17.087Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1112,6 +1112,17 @@
       "taxAmount": 0,
       "totalAmount": 0,
       "note": "위탁판매 인수 확인용"
+    },
+    {
+      "id": "txmpf2nhn4",
+      "date": "2026-05-21",
+      "customer": "원동공구상사",
+      "docNo": "",
+      "items": "나인세컨드 선크림×15, 그린애플 노세범 선스틱×25",
+      "supplyAmount": 400000,
+      "taxAmount": 40000,
+      "totalAmount": 440000,
+      "note": ""
     }
   ]
 }
