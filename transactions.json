@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-26T01:35:07.296Z",
+  "updatedAt": "2026-05-26T04:54:18.412Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1144,6 +1144,17 @@
       "supplyAmount": 400000,
       "taxAmount": 40000,
       "totalAmount": 440000,
+      "note": ""
+    },
+    {
+      "id": "txmpm5urd5",
+      "date": "2026-05-26",
+      "customer": "남대문약국",
+      "docNo": "",
+      "items": "릴릴 나인세컨드 선크림×100",
+      "supplyAmount": 800000,
+      "taxAmount": 80000,
+      "totalAmount": 880000,
       "note": ""
     }
   ]
