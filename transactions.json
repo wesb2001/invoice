@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-26T01:31:10.026Z",
+  "updatedAt": "2026-05-26T01:31:27.849Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1141,6 +1141,17 @@
       "customer": "베스타 주식회사",
       "docNo": "",
       "items": "비타 ABCDE 앰플×15, 카밍 리커버리 앰플×10, 비타 ABCDE 앰플(샘플)×2, 카밍 리커버리 앰플(샘플)",
+      "supplyAmount": 0,
+      "taxAmount": 0,
+      "totalAmount": 0,
+      "note": ""
+    },
+    {
+      "id": "txmplylwpc",
+      "date": "2026-05-26",
+      "customer": "베스타 주식회사",
+      "docNo": "",
+      "items": "비타 ABCDE 앰플×15, 카밍 리커버리 앰플×10, 비타 ABCDE 앰플(샘플)×2, 카밍 리커버리 앰플(샘플)×2",
       "supplyAmount": 0,
       "taxAmount": 0,
       "totalAmount": 0,
