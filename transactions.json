@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-26T01:33:05.905Z",
+  "updatedAt": "2026-05-26T01:33:10.683Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1122,17 +1122,6 @@
       "supplyAmount": 400000,
       "taxAmount": 40000,
       "totalAmount": 440000,
-      "note": ""
-    },
-    {
-      "id": "txmplykerm",
-      "date": "2026-05-26",
-      "customer": "베스타 주식회사",
-      "docNo": "",
-      "items": "비타 ABCDE 앰플×17, 카밍 리커버리 앰플×12",
-      "supplyAmount": 0,
-      "taxAmount": 0,
-      "totalAmount": 0,
       "note": ""
     },
     {
