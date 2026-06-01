@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-26T04:55:45.843Z",
+  "updatedAt": "2026-06-01T05:15:19.200Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1144,6 +1144,17 @@
       "supplyAmount": 800000,
       "taxAmount": 80000,
       "totalAmount": 880000,
+      "note": ""
+    },
+    {
+      "id": "txmpur8w4i",
+      "date": "2026-06-01",
+      "customer": "신영광고기획",
+      "docNo": "",
+      "items": "선크림 50ml×60",
+      "supplyAmount": 540000,
+      "taxAmount": 54000,
+      "totalAmount": 594000,
       "note": ""
     }
   ]
