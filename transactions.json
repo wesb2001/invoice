@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-01T05:15:19.200Z",
+  "updatedAt": "2026-06-05T05:33:38.170Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1155,6 +1155,17 @@
       "supplyAmount": 540000,
       "taxAmount": 54000,
       "totalAmount": 594000,
+      "note": ""
+    },
+    {
+      "id": "txmq0hnut2",
+      "date": "2026-06-05",
+      "customer": "원브릿지(미미라인)",
+      "docNo": "",
+      "items": "릴릴웨이브 진동클렌저 ×15, 릴릴웨이브 교체헤드×20",
+      "supplyAmount": 580000,
+      "taxAmount": 58000,
+      "totalAmount": 638000,
       "note": ""
     }
   ]
