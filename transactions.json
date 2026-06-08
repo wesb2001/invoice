@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-05T05:33:38.170Z",
+  "updatedAt": "2026-06-08T04:50:11.085Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1166,6 +1166,17 @@
       "supplyAmount": 580000,
       "taxAmount": 58000,
       "totalAmount": 638000,
+      "note": ""
+    },
+    {
+      "id": "txmq4qfj3a",
+      "date": "2026-06-08",
+      "customer": "클로사 주식 회사",
+      "docNo": "",
+      "items": "나인세컨드 선크림 본품×2, 코랄센텔라선쿠션×2, 카밍 리커버리 앰플×3, 비타 ABCDE 앰플×3, 비타 ABCDE 크림×2",
+      "supplyAmount": 129089,
+      "taxAmount": 12909,
+      "totalAmount": 141998,
       "note": ""
     }
   ]
