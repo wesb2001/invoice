@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-08T05:32:02.967Z",
+  "updatedAt": "2026-06-08T06:28:47.029Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1210,6 +1210,17 @@
       "supplyAmount": 12000,
       "taxAmount": 1200,
       "totalAmount": 13200,
+      "note": ""
+    },
+    {
+      "id": "txmq4tybzp",
+      "date": "2026-06-08",
+      "customer": "스마트엠",
+      "docNo": "",
+      "items": "릴릴 듀얼쎄라 + 앰플 2종 세트×220000, 반품비용 ×10000",
+      "supplyAmount": 7809091,
+      "taxAmount": 780909,
+      "totalAmount": 8590000,
       "note": ""
     }
   ]
