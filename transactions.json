@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-08T05:02:47.613Z",
+  "updatedAt": "2026-06-08T05:32:02.967Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1199,6 +1199,17 @@
       "supplyAmount": 35182,
       "taxAmount": 3518,
       "totalAmount": 38700,
+      "note": ""
+    },
+    {
+      "id": "txmq4rxdda",
+      "date": "2026-06-08",
+      "customer": "웰그린(유튜브스토어)",
+      "docNo": "",
+      "items": " 나인세컨드 선크림×1, 배송비×1",
+      "supplyAmount": 12000,
+      "taxAmount": 1200,
+      "totalAmount": 13200,
       "note": ""
     }
   ]
