@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-08T04:50:11.085Z",
+  "updatedAt": "2026-06-08T05:01:18.887Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1177,6 +1177,17 @@
       "supplyAmount": 129089,
       "taxAmount": 12909,
       "totalAmount": 141998,
+      "note": ""
+    },
+    {
+      "id": "txmq4qtuhe",
+      "date": "2026-06-08",
+      "customer": "(주)케이에스아이앤씨/브랜드노",
+      "docNo": "",
+      "items": "선크림×2, 선스틱×2, 배송비×1",
+      "supplyAmount": 35182,
+      "taxAmount": 3518,
+      "totalAmount": 38700,
       "note": ""
     }
   ]
