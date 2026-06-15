@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-08T06:28:47.029Z",
+  "updatedAt": "2026-06-15T01:23:31.828Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1221,6 +1221,17 @@
       "supplyAmount": 7809091,
       "taxAmount": 780909,
       "totalAmount": 8590000,
+      "note": ""
+    },
+    {
+      "id": "txmqej4qfz",
+      "date": "2026-06-15",
+      "customer": "클로사 춘천",
+      "docNo": "",
+      "items": "그린애플 노세범 선스틱×5",
+      "supplyAmount": 43636,
+      "taxAmount": 4364,
+      "totalAmount": 48000,
       "note": ""
     }
   ]
