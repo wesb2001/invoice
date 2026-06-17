@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-15T01:23:31.828Z",
+  "updatedAt": "2026-06-17T07:27:03.940Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1232,6 +1232,17 @@
       "supplyAmount": 43636,
       "taxAmount": 4364,
       "totalAmount": 48000,
+      "note": ""
+    },
+    {
+      "id": "txmqhqzxzl",
+      "date": "2026-06-17",
+      "customer": "남대문약국",
+      "docNo": "",
+      "items": "나인세컨드 선크림×80, 그린애플 노세범 선스틱×30, 코랄센텔라 선쿠션×50",
+      "supplyAmount": 1330000,
+      "taxAmount": 133000,
+      "totalAmount": 1463000,
       "note": ""
     }
   ]
