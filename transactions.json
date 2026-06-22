@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-17T07:27:03.940Z",
+  "updatedAt": "2026-06-22T02:54:23.246Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1243,6 +1243,17 @@
       "supplyAmount": 1330000,
       "taxAmount": 133000,
       "totalAmount": 1463000,
+      "note": ""
+    },
+    {
+      "id": "txmqomgjgv",
+      "date": "2026-06-22",
+      "customer": "비다벨로",
+      "docNo": "",
+      "items": "호호바클렌저×10, 선쿠션×5, 테스터×2",
+      "supplyAmount": 0,
+      "taxAmount": 0,
+      "totalAmount": 0,
       "note": ""
     }
   ]
