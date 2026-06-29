@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-22T02:55:21.132Z",
+  "updatedAt": "2026-06-29T05:03:20.052Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1251,6 +1251,17 @@
       "customer": "비다벨로",
       "docNo": "",
       "items": "호호바클렌저×10, 선쿠션×5, 테스터×2",
+      "supplyAmount": 0,
+      "taxAmount": 0,
+      "totalAmount": 0,
+      "note": "위탁판매 인수 확인용"
+    },
+    {
+      "id": "txmqyr5bra",
+      "date": "2026-06-29",
+      "customer": "비다벨로",
+      "docNo": "",
+      "items": "릴릴 그린애플 노세범 선스틱×15, 릴릴웨이브 진동클렌저 핑크×2",
       "supplyAmount": 0,
       "taxAmount": 0,
       "totalAmount": 0,
