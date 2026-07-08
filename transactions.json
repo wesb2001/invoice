@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-08T02:30:54.844Z",
+  "updatedAt": "2026-07-08T03:18:24.450Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1298,6 +1298,17 @@
       "supplyAmount": 160000,
       "taxAmount": 16000,
       "totalAmount": 176000,
+      "note": ""
+    },
+    {
+      "id": "txmrbid22k",
+      "date": "2026-07-08",
+      "customer": "(주)케이에스아이앤씨/브랜드노",
+      "docNo": "",
+      "items": "릴릴 나인세컨드 선크림×8, 릴릴 그린애플 노세범 선스틱 ×2, 배송비×2",
+      "supplyAmount": 86364,
+      "taxAmount": 8636,
+      "totalAmount": 95000,
       "note": ""
     }
   ]
