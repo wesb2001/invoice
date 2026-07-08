@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-08T03:18:24.450Z",
+  "updatedAt": "2026-07-08T08:56:21.381Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1309,6 +1309,17 @@
       "supplyAmount": 86364,
       "taxAmount": 8636,
       "totalAmount": 95000,
+      "note": ""
+    },
+    {
+      "id": "txmrbufo0l",
+      "date": "2026-07-08",
+      "customer": "웰그린(유튜브스토어)",
+      "docNo": "",
+      "items": "[LYLYL] 릴릴 나인세컨드 선크림 50ml x 4×1, [LYLYL] 릴릴 그린애플 노세범 선스틱 18.5g x 2×1, [LYLYL] 릴릴 그린애플 노세범 선스틱 18.5g×1,  배송비 ×2",
+      "supplyAmount": 58147,
+      "taxAmount": 5813,
+      "totalAmount": 63960,
       "note": ""
     }
   ]
