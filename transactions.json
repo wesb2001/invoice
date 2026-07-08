@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-02T01:27:47.981Z",
+  "updatedAt": "2026-07-08T02:09:03.297Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1276,6 +1276,17 @@
       "supplyAmount": 718000,
       "taxAmount": 71800,
       "totalAmount": 789800,
+      "note": ""
+    },
+    {
+      "id": "txmrbfvvbu",
+      "date": "2026-07-08",
+      "customer": "스마트엠",
+      "docNo": "",
+      "items": "릴릴 듀얼쎄라 +앰플 2종 세트×1",
+      "supplyAmount": 200000,
+      "taxAmount": 20000,
+      "totalAmount": 220000,
       "note": ""
     }
   ]
