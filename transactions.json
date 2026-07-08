@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-08T02:09:03.297Z",
+  "updatedAt": "2026-07-08T02:30:54.844Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1287,6 +1287,17 @@
       "supplyAmount": 200000,
       "taxAmount": 20000,
       "totalAmount": 220000,
+      "note": ""
+    },
+    {
+      "id": "txmrbgnzag",
+      "date": "2026-07-08",
+      "customer": "주식회사 원브릿지\t\t\t",
+      "docNo": "",
+      "items": "릴릴 웨이브 모공샤워 저자극 클렌저 (핑크)\t\t\t\t\t\t×5",
+      "supplyAmount": 160000,
+      "taxAmount": 16000,
+      "totalAmount": 176000,
       "note": ""
     }
   ]
