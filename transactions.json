@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-08T08:56:21.381Z",
+  "updatedAt": "2026-08-06T06:57:03.328Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1320,6 +1320,17 @@
       "supplyAmount": 58147,
       "taxAmount": 5813,
       "totalAmount": 63960,
+      "note": ""
+    },
+    {
+      "id": "txmsh5xxrm",
+      "date": "2026-08-06",
+      "customer": "웰그린(유튜브스토어)",
+      "docNo": "",
+      "items": "릴릴 선스틱×2, 릴릴 비타크림×2, 릴릴웨이브×2, 릴릴 카밍앰플×1, 택배비×5",
+      "supplyAmount": 145636.3635,
+      "taxAmount": 14564,
+      "totalAmount": 160200.3635,
       "note": ""
     }
   ]
