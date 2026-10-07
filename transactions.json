@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-07T00:34:54.064Z",
+  "updatedAt": "2026-10-07T00:36:09.119Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1346,6 +1346,17 @@
     },
     {
       "id": "txmuxdlb6t",
+      "date": "2026-10-07",
+      "customer": "원브릿지(미미라인)",
+      "docNo": "",
+      "items": "LYLYL 릴릴 웨이브 모공샤워 저자극 진동클렌저 스카이블루×5, LYLYL 릴릴 이지버블 호호바 라떼 클렌저195ml×5",
+      "supplyAmount": 209000,
+      "taxAmount": 20900,
+      "totalAmount": 229900,
+      "note": ""
+    },
+    {
+      "id": "txmuxdmx6f",
       "date": "2026-10-07",
       "customer": "원브릿지(미미라인)",
       "docNo": "",
