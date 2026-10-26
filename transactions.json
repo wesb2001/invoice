@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-20T02:33:56.038Z",
+  "updatedAt": "2026-10-26T03:32:00.994Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1408,6 +1408,17 @@
       "supplyAmount": 310000,
       "taxAmount": 31000,
       "totalAmount": 341000,
+      "note": ""
+    },
+    {
+      "id": "txmvopa9m9",
+      "date": "2026-10-26",
+      "customer": "비다벨로",
+      "docNo": "",
+      "items": "릴릴 나인세컨드 선크림×20, 릴릴 호호바 라떼 클렌저×10",
+      "supplyAmount": 0,
+      "taxAmount": 0,
+      "totalAmount": 0,
       "note": ""
     }
   ]
