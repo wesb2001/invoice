@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-26T03:32:00.994Z",
+  "updatedAt": "2026-10-27T01:13:55.558Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1419,6 +1419,17 @@
       "supplyAmount": 0,
       "taxAmount": 0,
       "totalAmount": 0,
+      "note": ""
+    },
+    {
+      "id": "txmvpzsj24",
+      "date": "2026-10-27",
+      "customer": "주식회사 원브릿지",
+      "docNo": "",
+      "items": "LYLYL 릴릴 그린애플 노세범 선스틱 18.5g×5, LYLYL 릴릴 웨이브 모공샤워 저자극 진동클렌저 스카이블루×5",
+      "supplyAmount": 199000,
+      "taxAmount": 19900,
+      "totalAmount": 218900,
       "note": ""
     }
   ]
