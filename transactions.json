@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-27T01:13:55.558Z",
+  "updatedAt": "2026-11-03T00:05:19.726Z",
   "transactions": [
     {
       "id": "tx1000",
@@ -1430,6 +1430,17 @@
       "supplyAmount": 199000,
       "taxAmount": 19900,
       "totalAmount": 218900,
+      "note": ""
+    },
+    {
+      "id": "txmvzxf9up",
+      "date": "2026-11-02",
+      "customer": "주식회사 원브릿지",
+      "docNo": "",
+      "items": "LYLYL 릴릴 웨이브 모공샤워 저자극 진동클렌저 그레이×5, LYLYL 릴릴 웨이브 모공샤워 저자극 진동클렌저 스카이블루×5",
+      "supplyAmount": 320000,
+      "taxAmount": 32000,
+      "totalAmount": 352000,
       "note": ""
     }
   ]
